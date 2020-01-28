@@ -5,27 +5,13 @@
 {% include "navbar.html" %}
 	<section class="hero is-primary is-bold is-large">
 	<div class="hero-body">
-{% if current_user.is_subscribed %}
-	
 	<p class="title is-2"> Wadup, {{current_user.username}}? </p>
-  <br class="small-break">
-	<p class="subtitle is-4"> Click the link below, if you want to go to the upload page</p>
-	<br>
-	<a href="/upload"><p class="subtitle is-4"><b>Upload</b></p></a>
-{% else %} 
-  <p class="title is-2">Wadup {{current_user.username}}?</p>
-  <br class="small-break">
-  	<p class="subtitle is-4"> You'll need to subscribe if you want to use our site </p>
-  	<br>
-  	<a href="/subscribe"><p class="subtitle is-4"><b>Subscribe</b></p></a>
-{% endif %}
-
 {% else %}
 	<section class="hero is-white is-medium">
   <nav class="navbar is-transparent">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
-        <h6 href="/" class="subtitle"><strong>ThemOldies</strong></h6>
+        <h6 href="/" class="subtitle"><strong>Start</strong></h6>
       </a>
       <div id="navbar-burger-id" class="navbar-burger burger" data-target="navbar-menu-id">
         <span></span>
@@ -40,11 +26,11 @@
 </section>
 <section class="hero is-primary is-bold is-large">
 	<div class="hero-body">
-	<p class="title is-2"> Hey there </p>
+	<p class="title is-2"> Hvad så der? </p>
 	<br class="small-break">
-	<p class="subtitle is-4"> You'll need to register as a user and get a subscription if you want to use our site </p>
+	<p class="subtitle is-4"> Du er nødt til at oprette en bruger for at kunne benytte vores site. </p>
 	<br>
-	<a href="/register"><p class="subtitle is-4"><b>Register</b></p></a>
+	<a href="/register"><p class="subtitle is-4"><b>Opret bruger</b></p></a>
 {% endif %}
 
 </div>
