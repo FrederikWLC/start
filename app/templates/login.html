@@ -30,7 +30,7 @@
         <div class="column is-auto">
           <div id="login-box" class="login-box">
             <div class="signup-area">
-              <p class="title">Login</p>
+              <p class="title">Log ind</p>
               <p> Ikke registreret?
               <a href="/register"><b>Opret bruger</b></a></p>
               <br>
@@ -68,31 +68,7 @@
     </div>  
   </div>
 </section>
-<section class="hero">
-  <footer class="footer">
-    <div class="container">
-      <div class="content has-text-centered">
-        <p>
-          <strong>Start</strong> af Nicolai Terndrup <i>&</i>Frederik Christoffersen  
-          <span class="icon is-small">
-            <i class="fa fa-copyright"></i>
-          </span>2020</a>
-        </p>
-        <p>
-          <a class="icon has-text-primary" href="https://github.com/FrederikWLC" target="_blank">
-            <i class="fa fa-globe"></i>
-          </a>          
-          <a class="icon has-text-primary" href="https://github.com/FrederikWLC" target="_blank">
-            <i class="fa fa-github"></i>
-          </a>
-          <a class="icon has-text-primary" href="mailto:FrederikWLC@github.user" target="_blank">
-            <i class="fa fa-envelope"></i>
-          </a>
-        </p>
-      </div>
-    </div>
-  </footer>
-</section>
+{% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
 <script src="../static/js/auth.js"></script>

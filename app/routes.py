@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
-from flask import redirect, url_for, render_template, request, session, flash, make_response
+from flask import redirect, url_for, render_template, request, session, flash
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-from app import app, db, dropzone
+from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User
-from app.generate import update_csv, load_model
-import codecs
-from csv import reader
 import json
-import stripe
-from werkzeug.wrappers import Response
 
 
 # ======== Routing =========================================================== #
@@ -49,7 +44,7 @@ def logout():
     return redirect(url_for('home'))
 
 
-# -------- Signin Page ---------------------------------------------------------- #
+# -------- Register Page ---------------------------------------------------------- #
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     print(current_user.is_authenticated)
@@ -88,4 +83,24 @@ def settings():
 @app.route("/main")
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
     return render_template("home.html")
+
+# -------- Explore page ---------------------------------------------------------- #
+
+
+@app.route('/explore', methods=['GET', 'POST'])
+def explore():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    return render_template("explore.html")
+
+# -------- Establish page ---------------------------------------------------------- #
+
+
+@app.route('/establish', methods=['GET', 'POST'])
+def establish():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    return render_template("establish.html")

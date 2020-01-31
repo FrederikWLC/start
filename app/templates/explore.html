@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include "navbar.html" %}
+	<section class="hero is-primary is-bold is-medium">
+
+  	<div class="hero-body">
+    <div class="container has-text-centered">
+          <div id="login-box" class="login-box">
+            <div class="signup-area">
+              <p class="title">Udforsk</p>
+              <br>
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="location" class="input is-success" type="location" placeholder="Lokation">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-globe"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="radius" class="input " type="int" placeholder="Radius (km)">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-wifi"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+              <br>
+              <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Udforsk</a>
+              <br>
+              <br>
+              <i><a id="feedback" class="feedback"></a></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+</section>
+{% include "footer.html" %}
+{% endblock %}
+{% block scripts %}
+<script src="../static/js/navbar.js"></script>
+{% endblock %}
