@@ -34,9 +34,10 @@
               <p> Allerede i besiddelse af en bruger?
               <a href="/login"><b>Log ind</b></a></p>
               <br>
+
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="register-user" class="input is-success" type="text" placeholder="Brugernavn">
+                  <input id="register-name" class="input is-success" type="text" placeholder="Navn">
                   <span class="icon is-small is-left">
                     <i class="fa fa-user"></i>
                   </span>
@@ -45,6 +46,33 @@
                   </span>
                 </p>
               </div>
+
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="register-location" class="input" type="location" placeholder="Lokation">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-globe"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+
+              <br>
+
+            <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="register-username" class="input is-success" type="text" placeholder="Brugernavn">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-id-card"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
                   <input id="register-mail" class="input is-success" type="text" placeholder="Email">
@@ -56,6 +84,7 @@
                   </span>
                 </p>
               </div>
+              
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
                   <input id="register-pass" class="input" type="password" placeholder="Adgangskode">
@@ -81,31 +110,8 @@
     </div>  
   </div>
 </section>
-<section class="hero">
-  <footer class="footer">
-    <div class="container">
-      <div class="content has-text-centered">
-        <p>
-          <strong>Start</strong> af Nicolai Terndrup <i>&</i> Frederik Christoffersen
-          <span class="icon is-small">
-            <i class="fa fa-copyright"></i>
-          </span>2020</a>
-        </p>
-        <p>
-          <a class="icon has-text-primary" href="https://github.com/FrederikWLC" target="_blank">
-            <i class="fa fa-globe"></i>
-          </a>          
-          <a class="icon has-text-primary" href="https://github.com/FrederikWLC" target="_blank">
-            <i class="fa fa-github"></i>
-          </a>
-          <a class="icon has-text-primary" href="mailto:FrederikWLC@github.user" target="_blank">
-            <i class="fa fa-envelope"></i>
-          </a>
-        </p>
-      </div>
-    </div>
-  </footer>
-</section>
+
+{% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
 <script src="../static/js/auth.js"></script>

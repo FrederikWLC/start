@@ -12,15 +12,18 @@ function message(status, shake=false, id="") {
     $.post({
       type: "POST",
       url: "/register",
-      data: {"username": $("#register-user").val(), 
-             "password": $("#register-pass").val(), 
-             "email": $("#register-mail").val()},
+      data: {"name": $("#register-name").val(),
+             "location": $("#register-location").val(),
+             "username": $("#register-username").val(),
+             "email": $("#register-mail").val(),
+             "password": $("#register-pass").val()},
       success(response) {
         var status = JSON.parse(response)["status"];
         if (status === "Successfully registered") { location.reload(); }
         else{message(status, true, "register-box");}
-      }
-    });
+
+        
+      }});
   });
 
     $(document).on("click", "#login-button", function() {
@@ -28,7 +31,7 @@ function message(status, shake=false, id="") {
     $.post({
       type: "POST",
       url: "/login",
-      data: {"username": $("#login-user").val(), 
+      data: {"username": $("#login-username").val(), 
              "password": $("#login-pass").val()},
       success(response) {
           var status = JSON.parse(response)["status"];

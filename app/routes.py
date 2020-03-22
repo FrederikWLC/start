@@ -6,12 +6,14 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User
 import json
+from geopy import Nominatim
+locator = Nominatim(user_agent="myGeocoder")
+import folium
+import re
 
 
 # ======== Routing =========================================================== #
 # -------- Login ------------------------------------------------------------- #
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -47,27 +49,44 @@ def logout():
 # -------- Register Page ---------------------------------------------------------- #
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+
     print(current_user.is_authenticated)
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = RegistrationForm()
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        print("OPRET BRUGER")
+        name = request.form['name']
+        location = request.form["location"]
+        username = request.form["username"]
         email = request.form["email"]
-        if not username or not password or not email:
+        password = request.form['password']
+
+        if not name or not location or not username or not email or not password:
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
+
         if not User.query.filter_by(username=username).first() is None:
             print("Username taken")
             return json.dumps({'status': 'Username taken'})
-        user = User(username=username, email=email)
+
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            print("Invalid email")
+            return json.dumps({'status': 'Invalid email'})
+
+        location = locator.geocode(location)
+        if not location:
+            print("Non-valid location")
+            return json.dumps({'status': 'Non-valid location'})
+
+        user = User(name=name, location=location.address, latitude=location.latitude, longitude=location.longitude, username=username, email=email)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         login_user(user, remember=True)
         print("Successfully registered")
         return json.dumps({'status': 'Successfully registered'})
+
     return render_template("register.html", title="Register", form=form)
 
 
