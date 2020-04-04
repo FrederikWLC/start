@@ -7,7 +7,7 @@
   	<div class="hero-body">
     <div class="container has-text-centered">
           <div id="explore-box" class="explore-box">
-            <div class="signup-area">
+            <div class="signup-area" id="field">
               <p class="title">Explore</p>
               <br>
               <div class="field">
@@ -40,9 +40,20 @@
             </div>
             {% if search and profiles %}
             {% for profile in profiles %}
-                <div>
-                <b><a href="/profile/{{profile.username}}/"> {{ profile.name }} </a>, {{profile.haversine_distance(*locargs)}} km </b>
-              </div>
+
+              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
+            <div width="75px" class="column" id="leftBox"><img src="{{ profile.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox">
+              <h1 style="color:black"><b>
+              
+              {{ profile.name }}</b> {% if profile == current_user %}(You){% endif %}</h1>
+              
+          </div>
+            <div class="column" id="rightBox">
+              <b>{{profile.haversine_distance(*locargs)}} km </b>
+            </div>
+            <hr>
+        </div>
               {% endfor %}
             {% endif %}
             {% if search and not profiles %}
@@ -60,6 +71,64 @@
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
+<style>
+
+
+
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width: 425px;
+  height: 75px;
+  margin: auto;
+  cursor: pointer;
+}
+
+#bigBox:hover{
+  outline:3px solid white;
+}
+
+#leftBox {
+  float:left;
+  height:75px;
+  width: 75px;
+  padding: 0px;
+  padding-right: 0px;
+}
+
+#middleBox {
+  float:middle;
+  height: 75px;
+  width: 250px;
+  background: white;
+  padding-left: 1px;
+}
+
+#rightBox {
+  float:right;
+  height:75px;
+  width: 100px;
+  background: white;
+  color: black;
+}
+
+#field {
+  width: 425px;
+  margin: auto;
+}
+</style>
 <script src="../static/js/navbar.js"></script>
 <script src="../static/js/expl0re.js"></script>
 {% endblock %}
