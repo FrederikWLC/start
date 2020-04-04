@@ -6,13 +6,13 @@
 
   	<div class="hero-body">
     <div class="container has-text-centered">
-          <div id="login-box" class="login-box">
+          <div id="explore-box" class="explore-box">
             <div class="signup-area">
-              <p class="title">Udforsk</p>
+              <p class="title">Explore</p>
               <br>
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="location" class="input is-success" type="location" placeholder="Lokation">
+                  <input id="location" class="input is-success" type="location" placeholder="Location">
                   <span class="icon is-small is-left">
                     <i class="fa fa-globe"></i>
                   </span>
@@ -33,10 +33,23 @@
                 </p>
               </div>
               <br>
-              <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Udforsk</a>
+              <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Explore</a>
               <br>
               <br>
               <i><a id="feedback" class="feedback"></a></i>
+            </div>
+            {% if search and profiles %}
+            {% for profile in profiles %}
+                <div>
+                <b><a href="/profile/{{profile.username}}/"> {{ profile.name }} </a>, {{profile.haversine_distance(*locargs)}} km </b>
+              </div>
+              {% endfor %}
+            {% endif %}
+            {% if search and not profiles %}
+            <div>
+              Couldn't find any profiles nearby..
+            </div>
+            {% endif %}
             </div>
           </div>
         </div>
@@ -48,4 +61,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="../static/js/navbar.js"></script>
+<script src="../static/js/expl0re.js"></script>
 {% endblock %}
