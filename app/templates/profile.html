@@ -23,7 +23,11 @@
             </div>
             <div class="column" id="rightBox">
               <a href="/profile/{{profile.username}}/relations/"><p style="color:black;">Relations</p></a>
+              {% if not profile == current_user %}
+              <a href="/profile/{{profile.username}}/connect/"><p style="color:black;">Connect</p></a>
+              {% endif %}
             </div>
+
         </div>
 
   </div>
@@ -76,7 +80,7 @@
 }
 
 a:hover {
-  font-weight: bold;
+  font-weight: 550;
 }
 </style>
 <script src="../static/js/navbar.js"></script>>

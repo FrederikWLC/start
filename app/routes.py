@@ -177,3 +177,10 @@ def profile(username):
 def relations(username):
     profile = User.query.filter_by(username=username).first_or_404()
     return render_template('relations.html', profile=profile)
+
+
+@app.route("/profile/<username>/connect/", methods=["GET", "POST"])
+@login_required
+def connect(username):
+    profile = User.query.filter_by(username=username).first_or_404()
+    return render_template('connect.html', profile=profile)
