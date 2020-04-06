@@ -6,28 +6,39 @@
 
   	<div class="hero-body">
   
-          
-        <div valign="top" class="block">
-            
-        </div>
+         <div class="container has-text-centered">
+          <div id="connect-box" class="connect-box">
+              <p class="title">Connect</p>
+              <br>
 
-  </div>
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="title" class="input is-success" type="title" placeholder="Title">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-header"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+
+              <div class="control">
+  <textarea class="textarea has-fixed-size is-success" placeholder="Content" id="content"></textarea> 
+</div>
+      <br>
+              <a id="connect-button" class="form-button button is-primary is-inverted is-outlined">Connect</a>
+              <br>
+              <br>
+              <i><a id="feedback" class="feedback"></a></i>           
+            </div>
+</div>
+</div>
 </section>
+
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
-<style>
-
-/* Create three equal columns that floats next to each other */
-.block {
-  vertical-align: middle;
-  float: left;
-  padding: 10px;
-  background: white;
-  width: 100%;
-  height: 100%;
-}
-
-</style>
-<script src="../static/js/navbar.js"></script>>
+<script src="../static/js/navbar.js"></script>
+<script src="../static/js/connect.js"></script>
 {% endblock %}

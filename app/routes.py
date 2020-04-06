@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import redirect, url_for, render_template, request, session, flash
+from flask import redirect, url_for, render_template, request, session, flash, abort
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, geolocator
@@ -48,9 +48,6 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
-    print(current_user.is_authenticated)
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
     if request.method == 'POST':
         print("OPRET BRUGER")
         name = request.form['name']
@@ -145,6 +142,7 @@ def explore():
         return json.dumps({'status': 'Successfully validated'})
 
     try:
+        location.address
         return render_template("explore.html", profiles=explore_query, locargs=[math.sin(math.pi * location.latitude / 180), math.cos(math.pi * location.latitude / 180), math.pi * location.longitude / 180], search=True)
     except NameError:
         print("NO query")
@@ -176,11 +174,39 @@ def profile(username):
 @login_required
 def relations(username):
     profile = User.query.filter_by(username=username).first_or_404()
-    return render_template('relations.html', profile=profile)
+    relations = list(set(current_user.befriended).intersection(current_user.befriends))
+    return render_template('relations.html', relations=relations)
 
 
 @app.route("/profile/<username>/connect/", methods=["GET", "POST"])
 @login_required
 def connect(username):
+
+    if username == current_user.username:
+        abort(404)
+
     profile = User.query.filter_by(username=username).first_or_404()
+
+    if request.method == 'POST':
+
+        title = request.form["title"]
+
+        content = request.form["content"]
+
+        if not title or not content:
+            print("All fields required")
+            return json.dumps({'status': 'All fields required'})
+
+        application = Application(title=title, content=content, sender=current_user, recipient=profile)
+        db.session.add(application)
+        db.session.commit()
+        return json.dumps({'status': 'Successfully sent'})
+
     return render_template('connect.html', profile=profile)
+
+
+@app.route("/establish/application/<username>/", methods=["GET", "POST"])
+def application(username):
+    sender = User.query.filter_by(username=username).first_or_404()
+    application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id).first_or_404()
+    return render_template('application.html', application=application)

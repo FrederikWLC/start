@@ -5,12 +5,32 @@
 	<section class="hero is-primary is-bold is-medium">
 
   	<div class="hero-body">
-  
+      <div class="container has-text-centered">
+        <p class="title">Relations</p>
           
-        <div valign="top" class="block">
-            
-        </div>
+        {% if relations %}
+            {% for relation in relations %}
 
+              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{relation.username}}/';">
+            <div width="75px" class="column" id="leftBox"><img src="{{ relation.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox">
+              <h1 style="color:black"><b>   
+              {{ relation.name }}</b></h1>
+              
+          </div>
+            <div class="column" id="rightBox">
+              <h1 style="color:black"><b>   
+              {{ relation.username }}</b></h1>
+            </div>
+            <hr>
+        </div>
+              {% endfor %}
+            {% else %}
+            <div>
+              No relations to be established yet..
+            </div>
+            {% endif %}
+</div>
   </div>
 </section>
 {% include "footer.html" %}

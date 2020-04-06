@@ -43,7 +43,7 @@ class User(UserMixin, db.Model):
         secondaryjoin=(befriends.c.befriended_id == id),
         backref=db.backref('befriends', lazy='dynamic'), lazy='dynamic')
 
-    bio = db.Column(db.String(140))
+    bio = db.Column(db.Text())
 
     def form_relation(self, user):
         if not self.is_related_to(user):
@@ -56,6 +56,16 @@ class User(UserMixin, db.Model):
     def is_related_to(self, user):
         return self.relations.filter(
             befriends.c.befriended_id == user.id).count() > 0
+
+    # Submitted applications:
+    submitted_applications = db.relationship(
+        'Application', backref='sender', lazy='dynamic',
+        foreign_keys='Application.sender_id')
+
+    # Received applications:
+    received_applications = db.relationship(
+        'Application', backref='recipient', lazy='dynamic',
+        foreign_keys='Application.recipient_id')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -89,3 +99,19 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+
+class Application(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(120), index=True)
+    content = db.Column(db.Text(), index=True)
+
+    # "Sender" user:
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # "Recipient" user:
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '<Application {} -> {}>'.format(self.sender_id, self.recipient_id)

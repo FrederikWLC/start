@@ -2,13 +2,97 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-large">
-	<div class="hero-body">
-	<p class="title is-1"> Etabler </p>
-  </div>
-  </section>
+	<section class="hero is-primary is-bold is-medium">
+
+  	<div class="hero-body">
+    <div class="container has-text-centered">
+              <p class="title">Establish</p>
+              <br>
+            {% if applications %}
+            {% for application in applications %}
+
+              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{application.sender.username}}/';">
+            <div width="75px" class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox">
+              <h1 style="color:black"><b>   
+              {{ application.sender.name }}</b></h1>
+              
+          </div>
+            <div class="column" id="rightBox">
+              <h1 style="color:black"><b>   
+              {{ application.title }}</b></h1>
+            </div>
+            <hr>
+        </div>
+              {% endfor %}
+            {% else %}
+            <div>
+              No relations to be established yet..
+            </div>
+            {% endif %}
+              </div>
+          </div>
+</section>
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
+<style>
+
+
+
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width: 425px;
+  height: 75px;
+  margin: auto;
+  cursor: pointer;
+}
+
+#bigBox:hover{
+  outline:3px solid white;
+}
+
+#leftBox {
+  float:left;
+  height:75px;
+  width: 75px;
+  padding: 0px;
+  padding-right: 0px;
+}
+
+#middleBox {
+  float:middle;
+  height: 75px;
+  width: 250px;
+  background: white;
+  padding-left: 1px;
+}
+
+#rightBox {
+  float:right;
+  height:75px;
+  width: 100px;
+  background: white;
+  color: black;
+}
+
+#field {
+  width: 425px;
+  margin: auto;
+}
+</style>
 <script src="../static/js/navbar.js"></script>
 {% endblock %}
