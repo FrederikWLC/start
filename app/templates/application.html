@@ -6,14 +6,42 @@
 
     <div class="hero-body">
   
-         <div class="container has-text-centered">
+         <div class="container has-text-centered" id="container">
               <p class="title">{{application.title}}</p>
               <br>
 
 
               <div class="control">
   <textarea class="textarea has-fixed-size is-success" placeholder="Content" id="content" readonly>{{application.content}}</textarea> 
-</div>
+
+  <br>
+
+   <div valign="top" class="row" id="bigBox">
+            
+            <div class="column" id="leftBox">
+              
+              <button class="button is-success is-medium is-inverted is-outlined " id="accept-button">
+    <span class="icon is-small">
+      <i class="fa fa-check"></i>
+    </span>
+    <span>Accept</span>
+  </button>   
+
+            </div>
+
+            <div class="column" id="rightBox">
+              
+               <button class="button is-danger is-medium is-inverted is-outlined" id="reject-button">
+    <span>Reject</span>
+    <span class="icon is-small">
+      <i class="fa fa-times"></i>
+    </span>
+  </button>
+
+            </div>
+              
+  
+  </div>
 
 </div>
 </section>
@@ -21,5 +49,77 @@
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
+<style>
+
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width: 300px;
+  height: 75px;
+  margin: auto;
+}
+
+#leftBox {
+  float:left;
+  height: 45px;
+  width: 117px;
+  padding: 0;
+  border-radius: 3px;
+}
+
+#rightBox {
+  float:right;
+  height: 45px;
+  width: 110px;
+  padding: 0;
+  border-radius: 3px;
+}
+
+#container {
+  width: 425px;
+  margin: auto;
+}
+
+</style>
+<script>
+
+ $(document).on("click", "#accept-button", function() {
+   console.log("Accept");
+    $.post({
+      type: "POST",
+      url: "/establish/application/{{application.sender.username}}/{{application.title}}/",
+      data: {"response": "Accept"},
+      success(response) {
+        var status = JSON.parse(response)["status"];
+        if (status === "Successfully responded") { location.reload(); }
+        
+      }});
+  });
+
+ $(document).on("click", "#reject-button", function() {
+   console.log("Reject");
+    $.post({
+      type: "POST",
+      url: "/establish/application/{{application.sender.username}}/{{application.title}}/",
+      data: {"response": "Reject"},
+      success(response) {
+        var status = JSON.parse(response)["status"];
+        if (status === "Successfully responded") { location.reload(); }
+        
+      }});
+  });
+</script>
 <script src="/static/js/navbar.js"></script>
 {% endblock %}

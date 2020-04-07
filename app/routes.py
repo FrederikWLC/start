@@ -216,4 +216,9 @@ def connect(username):
 def application(username, title):
     sender = User.query.filter_by(username=username).first_or_404()
     application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id, title=title).first_or_404()
+
+    if request.method == 'POST':
+        print("POST")
+        response = request.form["response"]
+        print(f"response: {response}")
     return render_template('application.html', application=application)
