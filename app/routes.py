@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, geolocator
-from app.models import User
+from app.models import User, Application
 import json
 import folium
 import re
@@ -47,7 +47,8 @@ def logout():
 # -------- Register Page ---------------------------------------------------------- #
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
     if request.method == 'POST':
         print("OPRET BRUGER")
         name = request.form['name']
@@ -155,9 +156,10 @@ def explore():
 @app.route('/establish', methods=['GET', 'POST'])
 @login_required
 def establish():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
-    return render_template("establish.html")
+    applications = current_user.received_applications
+
+    def shorten(x): return x[0:14].rstrip() + ".." if len(x) > 14 else x
+    return render_template("establish.html", applications=applications, shorten=shorten)
 
 
 # -------- User page ---------------------------------------------------------- #
@@ -187,7 +189,11 @@ def connect(username):
 
     profile = User.query.filter_by(username=username).first_or_404()
 
+    if list(set(current_user.submitted_applications).intersection(profile.received_applications)):
+        return redirect(f"/profile/{profile.username}/")
+
     if request.method == 'POST':
+        print("POST")
 
         title = request.form["title"]
 
@@ -205,8 +211,9 @@ def connect(username):
     return render_template('connect.html', profile=profile)
 
 
-@app.route("/establish/application/<username>/", methods=["GET", "POST"])
-def application(username):
+@app.route("/establish/application/<username>/<title>/", methods=["GET", "POST"])
+@login_required
+def application(username, title):
     sender = User.query.filter_by(username=username).first_or_404()
-    application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id).first_or_404()
+    application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id, title=title).first_or_404()
     return render_template('application.html', application=application)

@@ -9,7 +9,7 @@ function message(status, shake=false, id="") {
    console.log("Connect");
     $.post({
       type: "POST",
-      url: "/connect",
+      url: "/profile/username/connect/",
       data: {"title": $("#title").val(),
              "content": $("#content").val()},
       success(response) {

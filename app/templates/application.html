@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include "navbar.html" %}
+  <section class="hero is-primary is-bold is-medium">
+
+    <div class="hero-body">
+  
+         <div class="container has-text-centered">
+              <p class="title">{{application.title}}</p>
+              <br>
+
+
+              <div class="control">
+  <textarea class="textarea has-fixed-size is-success" placeholder="Content" id="content" readonly>{{application.content}}</textarea> 
+</div>
+
+</div>
+</section>
+
+{% include "footer.html" %}
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/navbar.js"></script>
+{% endblock %}
