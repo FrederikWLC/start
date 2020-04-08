@@ -45,17 +45,20 @@ class User(UserMixin, db.Model):
 
     bio = db.Column(db.Text())
 
-    def form_relation(self, user):
-        if not self.is_related_to(user):
+    def befriend(self, user):
+        if not self.is_befriending(user):
             self.befriended.append(user)
 
-    def abolish_relation(self, user):
-        if self.is_related_to(user):
+    def abolish_befriending(self, user):
+        if self.is_befriending(user):
             self.befriended.remove(user)
 
-    def is_related_to(self, user):
-        return self.relations.filter(
+    def is_befriending(self, user):
+        return self.befriended.filter(
             befriends.c.befriended_id == user.id).count() > 0
+
+    def get_relations(self):
+        return list(set(self.befriended).intersection(self.befriends))
 
     # Submitted applications:
     submitted_applications = db.relationship(
@@ -101,6 +104,20 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.username)
 
 
+def form_relation(user1, user2):
+    if not user1.is_befriending(user2):
+        user1.befriend(user2)
+    if not user2.is_befriending(user1):
+        user2.befriend(user1)
+
+
+def are_related(user1, user2):
+    if user1 in user2.befriended and user2 in user1.befriended:
+        return True
+    else:
+        return False
+
+
 class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -113,5 +130,8 @@ class Application(db.Model):
     # "Recipient" user:
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    # Response
+    response = db.Column(db.Boolean)
+
     def __repr__(self):
-        return '<Application {} -> {}>'.format(self.sender_id, self.recipient_id)
+        return "<Application {} -> '{}' -> {}>".format(self.sender_id, self.title, self.recipient_id)

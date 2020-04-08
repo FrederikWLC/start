@@ -9,18 +9,21 @@
         <p class="title">Relations</p>
           
         {% if relations %}
-            {% for relation in relations %}
+        {% for relation in relations %}
 
-              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{relation.username}}/';">
-            <div width="75px" class="column" id="leftBox"><img src="{{ relation.profile_pic(75) }}"></div>
-            <div class="column" id="middleBox">
+              <div valign="top" class="row" id="bigBox">
+            <div width="75px" class="column" id="leftBox" onclick="window.location='../../{{relation.username}}/';"><img src="{{ relation.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox" onclick="window.location='../../{{relation.username}}/';">
               <h1 style="color:black"><b>   
               {{ relation.name }}</b></h1>
               
           </div>
             <div class="column" id="rightBox">
-              <h1 style="color:black"><b>   
-              {{ relation.username }}</b></h1>
+              <span class="icon is-large" onclick="window.location='/chat/{{relation.username}}/';">
+  <span class="fa-2x" id="chat">
+    <i class="fas fa-comments"></i>
+  </span>
+</span>
             </div>
             <hr>
         </div>
@@ -38,16 +41,70 @@
 {% block scripts %}
 <style>
 
+
+
 /* Create three equal columns that floats next to each other */
-.block {
+.column {
   vertical-align: middle;
   float: left;
   padding: 10px;
-  background: white;
-  width: 100%;
-  height: 100%;
 }
 
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width: 425px;
+  height: 75px;
+  margin: auto;
+  cursor: pointer;
+}
+
+#bigBox:hover{
+  outline:3px solid white;
+}
+
+#leftBox {
+  float:left;
+  height:75px;
+  width: 75px;
+  padding: 0px;
+  padding-right: 0px;
+}
+
+#middleBox {
+  float:middle;
+  height: 75px;
+  width: 250px;
+  background: white;
+  padding-left: 1px;
+}
+
+#rightBox {
+  float:right;
+  height:75px;
+  width: 100px;
+  background: white;
+  color: black;
+}
+
+#field {
+  width: 425px;
+  margin: auto;
+}
 </style>
-<script src="../static/js/navbar.js"></script>>
+<script>
+          $(document).ready(function () {
+        $('#chat').hover(function () {
+            $(this).addClass('fa-3x');
+        }, function () {
+            $(this).removeClass('fa-3x');
+        });
+    });
+</script>
+<script src="/static/js/navbar.js"></script>>
 {% endblock %}

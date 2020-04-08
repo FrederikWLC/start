@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, geolocator
-from app.models import User, Application
+from app.models import User, Application, form_relation, are_related
 import json
 import folium
 import re
@@ -156,9 +156,9 @@ def explore():
 @app.route('/establish', methods=['GET', 'POST'])
 @login_required
 def establish():
-    applications = current_user.received_applications
+    applications = list(filter(lambda application: application.response == None, current_user.received_applications))
 
-    def shorten(x): return x[0:14].rstrip() + ".." if len(x) > 14 else x
+    def shorten(x): return x[0:10].rstrip() + ".." if len(x) > 14 else x
     return render_template("establish.html", applications=applications, shorten=shorten)
 
 
@@ -176,7 +176,7 @@ def profile(username):
 @login_required
 def relations(username):
     profile = User.query.filter_by(username=username).first_or_404()
-    relations = list(set(current_user.befriended).intersection(current_user.befriends))
+    relations = profile.get_relations()
     return render_template('relations.html', relations=relations)
 
 
@@ -203,6 +203,14 @@ def connect(username):
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
 
+        if "*" in title:
+            print("Non-valid title")
+            return json.dumps({'status': "Non-valid title: cannot contain '*'"})
+
+        if "!" in title:
+            print("Non-valid title")
+            return json.dumps({'status': "Non-valid title: cannot contain '!'"})
+
         application = Application(title=title, content=content, sender=current_user, recipient=profile)
         db.session.add(application)
         db.session.commit()
@@ -216,9 +224,36 @@ def connect(username):
 def application(username, title):
     sender = User.query.filter_by(username=username).first_or_404()
     application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id, title=title).first_or_404()
-
+    if application.response != None:
+        return redirect(url_for("establish"))
+    print(f"application response {application.response}")
+    print(f"current_user relations: {current_user.get_relations()}")
     if request.method == 'POST':
         print("POST")
         response = request.form["response"]
         print(f"response: {response}")
+
+        if response == "Accept":
+            application.response = True
+            form_relation(current_user, sender)
+            db.session.commit()
+            print(f"application response {application.response}")
+            print(f"current_user relations: {current_user.get_relations()}")
+            return json.dumps({'status': 'Successfully responded'})
+        if response == "Reject":
+            application.response = False
+            db.session.commit()
+            print(f"application response {application.response}")
+            print(f"current_user relations: {current_user.get_relations()}")
+            return json.dumps({'status': 'Successfully responded'})
     return render_template('application.html', application=application)
+
+
+@app.route("/chat/<username>/", methods=["GET", "POST"])
+@login_required
+def chat(username):
+    profile = User.query.filter_by(username=username).first_or_404()
+    if not are_related(current_user, profile):
+        return redirect(f"/profile/{profile.username}/")
+
+    return render_template('chat.html', profile=profile)

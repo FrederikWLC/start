@@ -10,8 +10,8 @@
               <br>
             {% if applications %}
             {% for application in applications %}
-
               <div valign="top" class="row" id="bigBox" onclick="window.location='establish/application/{{application.sender.username}}/{{application.title}}';">
+            
             <div width="75px" class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>   
@@ -25,6 +25,7 @@
             <hr>
         </div>
               {% endfor %}
+        	
             {% else %}
             <div>
               No relations to be established yet..
