@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, geolocator
-from app.models import User, Application, form_relation, are_related
+from app.models import User, Application, Message, sqlalchemy
 import json
 import folium
 import re
@@ -177,20 +177,19 @@ def profile(username):
 def relations(username):
     profile = User.query.filter_by(username=username).first_or_404()
     relations = profile.get_relations()
-    return render_template('relations.html', relations=relations)
+    return render_template('relations.html', relations=relations, profile=profile)
 
 
 @app.route("/profile/<username>/connect/", methods=["GET", "POST"])
 @login_required
 def connect(username):
-
     if username == current_user.username:
         abort(404)
 
     profile = User.query.filter_by(username=username).first_or_404()
 
-    if list(set(current_user.submitted_applications).intersection(profile.received_applications)):
-        return redirect(f"/profile/{profile.username}/")
+    if current_user.is_related_to(profile):
+        return redirect(url_for("profile", username=username))
 
     if request.method == 'POST':
         print("POST")
@@ -211,6 +210,10 @@ def connect(username):
             print("Non-valid title")
             return json.dumps({'status': "Non-valid title: cannot contain '!'"})
 
+        if "?" in title:
+            print("Non-valid title")
+            return json.dumps({'status': "Non-valid title: cannot contain '?'"})
+
         application = Application(title=title, content=content, sender=current_user, recipient=profile)
         db.session.add(application)
         db.session.commit()
@@ -219,11 +222,11 @@ def connect(username):
     return render_template('connect.html', profile=profile)
 
 
-@app.route("/establish/application/<username>/<title>/", methods=["GET", "POST"])
+@app.route("/establish/application/<username>/", methods=["GET", "POST"])
 @login_required
-def application(username, title):
+def application(username):
     sender = User.query.filter_by(username=username).first_or_404()
-    application = Application.query.filter_by(sender_id=sender.id, recipient_id=current_user.id, title=title).first_or_404()
+    application = Application.query.filter_by(sender=sender, recipient=current_user).first_or_404()
     if application.response != None:
         return redirect(url_for("establish"))
     print(f"application response {application.response}")
@@ -235,7 +238,7 @@ def application(username, title):
 
         if response == "Accept":
             application.response = True
-            form_relation(current_user, sender)
+            current_user.form_relation_with(sender)
             db.session.commit()
             print(f"application response {application.response}")
             print(f"current_user relations: {current_user.get_relations()}")
@@ -249,11 +252,25 @@ def application(username, title):
     return render_template('application.html', application=application)
 
 
-@app.route("/chat/<username>/", methods=["GET", "POST"])
+@app.route("/messages/<username>/", methods=["GET", "POST"])
 @login_required
-def chat(username):
+def messages(username):
+    if username == current_user.username:
+        abort(404)
     profile = User.query.filter_by(username=username).first_or_404()
-    if not are_related(current_user, profile):
-        return redirect(f"/profile/{profile.username}/")
+    if not current_user.is_related_to(profile):
+        return redirect(url_for("profile", username=username))
 
-    return render_template('chat.html', profile=profile)
+    messages = current_user.get_messages_with(profile).all()
+    if request.method == 'POST':
+        print("POST")
+        content = request.form["content"]
+        print(f"content: {content}")
+        if not content:
+            print("Text-field required")
+            return json.dumps({'status': 'Text-field required'})
+        message = Message(content=content, sender=current_user, recipient=profile)
+        db.session.add(message)
+        db.session.commit()
+        return json.dumps({'status': 'Successfully sent'})
+    return render_template('messages.html', profile=profile, messages=messages)

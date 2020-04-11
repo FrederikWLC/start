@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include "navbar.html" %}
+	<section class="hero is-primary is-bold is-medium">
+
+  	<div class="hero-body">
+      <div class="container has-text-centered">
+        <p class="title">Messages: <b>{{profile.name}}<b></p>
+        <br>
+          
+          <div id="chat-box" class="chat-box">
+            {% if messages %}
+            {% for message in messages %}
+
+              <div valign="top" class="row" id="message">
+                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text-field" readonly>{{message.content}}</textarea> 
+              </div>
+        {% endfor %}
+        {% endif %}
+      
+        <div class="control row" id="message-field">
+        <div id="field">
+  <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text-field" rows="1"></textarea> 
+</div>
+<div id="send">
+  <button class="button is-link is-medium is-inverted" id="send-button">
+    <span class="icon is-medium">
+      <span class="fa-2x">
+      <i class="fa fa-long-arrow-right"></i>
+    </span>
+    </span>
+  </button>
+</div>
+</div>
+      <br>
+                
+            </div>
+</div>
+  </div>
+</section>
+{% include "footer.html" %}
+{% endblock %}
+{% block scripts %}
+<style>
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#message-field {
+  width: 270px;
+  height: 46px;
+  margin: auto;
+  cursor: pointer;
+  float:right;
+}
+
+#field {
+  float:left;
+  height:46px;
+  width: 200px;
+  padding: 0px;
+}
+
+
+#send {
+  float:right;
+  height:46px;
+  width: 70px;
+  padding: 0px;
+}
+
+#send-button {
+  width: 70px;
+  height: 46px;
+}
+
+#text-field {
+  height:46px;
+  width: 200px;
+}
+</style>
+<script>
+ 
+ $(document).on("click", "#send-button", function() {
+   console.log("Send");
+    $.post({
+      type: "POST",
+      url: "/messages/{{profile.username}}/",
+      data: {"content": $("#text-field").val()},
+      success(response) {
+        var status = JSON.parse(response)["status"];
+        if (status === "Successfully sent") { location.reload(); } 
+      }});
+  });
+</script>
+<script src="/static/js/navbar.js"></script>>
+{% endblock %}

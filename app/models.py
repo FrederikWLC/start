@@ -45,20 +45,41 @@ class User(UserMixin, db.Model):
 
     bio = db.Column(db.Text())
 
-    def befriend(self, user):
+    def befriend(self, profile):
         if not self.is_befriending(user):
             self.befriended.append(user)
 
-    def abolish_befriending(self, user):
+    def abolish_befriending(self, profile):
         if self.is_befriending(user):
             self.befriended.remove(user)
 
-    def is_befriending(self, user):
+    def is_befriending(self, profile):
         return self.befriended.filter(
-            befriends.c.befriended_id == user.id).count() > 0
+            befriends.c.befriended_id == profile.id).count() > 0
+
+    def is_related_to(self, profile):
+        if profile in self.befriended and self in profile.befriended:
+            return True
+        else:
+            return False
+
+    def form_relation_with(profile):
+        if not self.is_befriending(profile):
+            self.befriend(profile)
+        if not profile.is_befriending(self):
+            profile.befriend(self)
 
     def get_relations(self):
         return list(set(self.befriended).intersection(self.befriends))
+
+    def get_received_messages_from(self, profile):
+        return self.received_messages.filter_by(sender=profile)
+
+    def get_sent_messages_to(self, profile):
+        return self.sent_messages.filter_by(recipient=profile)
+
+    def get_messages_with(self, profile):
+        return self.get_received_messages_from(profile).union(self.get_sent_messages_to(profile))
 
     # Submitted applications:
     submitted_applications = db.relationship(
@@ -69,6 +90,14 @@ class User(UserMixin, db.Model):
     received_applications = db.relationship(
         'Application', backref='recipient', lazy='dynamic',
         foreign_keys='Application.recipient_id')
+
+    sent_messages = db.relationship(
+        'Message', backref='sender', lazy='dynamic',
+        foreign_keys='Message.sender_id')
+
+    received_messages = db.relationship(
+        'Message', backref='recipient', lazy='dynamic',
+        foreign_keys='Message.recipient_id')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -104,34 +133,30 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.username)
 
 
-def form_relation(user1, user2):
-    if not user1.is_befriending(user2):
-        user1.befriend(user2)
-    if not user2.is_befriending(user1):
-        user2.befriend(user1)
-
-
-def are_related(user1, user2):
-    if user1 in user2.befriended and user2 in user1.befriended:
-        return True
-    else:
-        return False
-
-
 class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     title = db.Column(db.String(120), index=True)
     content = db.Column(db.Text(), index=True)
 
-    # "Sender" user:
+    # "Sender" profile:
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    # "Recipient" user:
+    # "Recipient" profile:
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # Response
     response = db.Column(db.Boolean)
 
     def __repr__(self):
-        return "<Application {} -> '{}' -> {}>".format(self.sender_id, self.title, self.recipient_id)
+        return "<Application {} -> {}>".format(self.sender_id, self.recipient_id)
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text(), index=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return "<Message {} -> {}>".format(self.sender, self.recipient)

@@ -19,11 +19,14 @@
               
           </div>
             <div class="column" id="rightBox">
-              <span class="icon is-large" onclick="window.location='/chat/{{relation.username}}/';">
+              {% if profile == current_user %}
+              <span class="icon is-large" onclick="window.location='/messages/{{relation.username}}/';">
+              
   <span class="fa-2x" id="chat">
     <i class="fas fa-comments"></i>
   </span>
 </span>
+              {% endif %}
             </div>
             <hr>
         </div>
