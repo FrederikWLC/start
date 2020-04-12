@@ -10,7 +10,7 @@
               <br>
             {% if applications %}
             {% for application in applications %}
-              <div valign="top" class="row" id="bigBox" onclick="window.location='establish/application/{{application.sender.username}}/{{application.title}}';">
+              <div valign="top" class="row" id="bigBox" onclick="window.location='establish/application/{{application.sender.username}}/';">
             
             <div width="75px" class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
             <div class="column" id="middleBox">

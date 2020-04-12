@@ -46,12 +46,12 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text())
 
     def befriend(self, profile):
-        if not self.is_befriending(user):
-            self.befriended.append(user)
+        if not self.is_befriending(profile):
+            self.befriended.append(profile)
 
     def abolish_befriending(self, profile):
-        if self.is_befriending(user):
-            self.befriended.remove(user)
+        if self.is_befriending(profile):
+            self.befriended.remove(profile)
 
     def is_befriending(self, profile):
         return self.befriended.filter(
@@ -63,7 +63,7 @@ class User(UserMixin, db.Model):
         else:
             return False
 
-    def form_relation_with(profile):
+    def form_relation_with(self, profile):
         if not self.is_befriending(profile):
             self.befriend(profile)
         if not profile.is_befriending(self):

@@ -14,14 +14,14 @@
             {% for message in messages %}
 
               <div valign="top" class="row" id="message">
-                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text-field" readonly>{{message.content}}</textarea> 
+                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text" readonly>{{message.content}}</textarea> 
               </div>
         {% endfor %}
         {% endif %}
       
         <div class="control row" id="message-field">
         <div id="field">
-  <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text-field" rows="1"></textarea> 
+  <textarea class="textarea has-fixed-size" placeholder="Type a message..." id="text-field" rows="1"></textarea> 
 </div>
 <div id="send">
   <button class="button is-link is-medium is-inverted" id="send-button">
@@ -100,7 +100,7 @@
       data: {"content": $("#text-field").val()},
       success(response) {
         var status = JSON.parse(response)["status"];
-        if (status === "Successfully sent") { location.reload(); } 
+        if (status === "Successfully sent") {$("#text-field").val("");} 
       }});
   });
 </script>

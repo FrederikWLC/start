@@ -156,7 +156,7 @@ def explore():
 @app.route('/establish', methods=['GET', 'POST'])
 @login_required
 def establish():
-    applications = list(filter(lambda application: application.response == None, current_user.received_applications))
+    applications = current_user.received_applications.filter_by(response=None).all()
 
     def shorten(x): return x[0:10].rstrip() + ".." if len(x) > 14 else x
     return render_template("establish.html", applications=applications, shorten=shorten)
@@ -188,7 +188,7 @@ def connect(username):
 
     profile = User.query.filter_by(username=username).first_or_404()
 
-    if current_user.is_related_to(profile):
+    if current_user.is_related_to(profile) or current_user.submitted_applications.filter_by(recipient=profile).first():
         return redirect(url_for("profile", username=username))
 
     if request.method == 'POST':
@@ -213,6 +213,10 @@ def connect(username):
         if "?" in title:
             print("Non-valid title")
             return json.dumps({'status': "Non-valid title: cannot contain '?'"})
+
+        if ":" in title:
+            print("Non-valid title")
+            return json.dumps({'status': "Non-valid title: cannot contain ':'"})
 
         application = Application(title=title, content=content, sender=current_user, recipient=profile)
         db.session.add(application)
@@ -261,7 +265,6 @@ def messages(username):
     if not current_user.is_related_to(profile):
         return redirect(url_for("profile", username=username))
 
-    messages = current_user.get_messages_with(profile).all()
     if request.method == 'POST':
         print("POST")
         content = request.form["content"]
@@ -273,4 +276,6 @@ def messages(username):
         db.session.add(message)
         db.session.commit()
         return json.dumps({'status': 'Successfully sent'})
+
+    messages = current_user.get_messages_with(profile).all()
     return render_template('messages.html', profile=profile, messages=messages)

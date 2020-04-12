@@ -99,7 +99,7 @@
    console.log("Accept");
     $.post({
       type: "POST",
-      url: "/establish/application/{{application.sender.username}}/{{application.title}}/",
+      url: "/establish/application/{{application.sender.username}}/",
       data: {"response": "Accept"},
       success(response) {
         var status = JSON.parse(response)["status"];
@@ -112,7 +112,7 @@
    console.log("Reject");
     $.post({
       type: "POST",
-      url: "/establish/application/{{application.sender.username}}/{{application.title}}/",
+      url: "/establish/application/{{application.sender.username}}/",
       data: {"response": "Reject"},
       success(response) {
         var status = JSON.parse(response)["status"];
