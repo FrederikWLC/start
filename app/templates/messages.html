@@ -6,20 +6,19 @@
 
   	<div class="hero-body">
       <div class="container has-text-centered">
-        <p class="title">Messages: <b>{{profile.name}}<b></p>
+        <p class="title">Messages: <b>{{profile.name}}</b></p>
         <br>
-          
-          <div id="chat-box" class="chat-box">
             {% if messages %}
             {% for message in messages %}
-
-              <div valign="top" class="row" id="message">
-                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text" readonly>{{message.content}}</textarea> 
+              <div class="message-container" {% if message.sender == current_user %} id="sender_is_current_user" {% else %} id="sender_is_profile" {% endif %}>
+                <div id="profile_pic"><img src="{{ message.sender.profile_pic(50) }}"></div>
+                <div class="message">
+                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text" readonly>{{message.content}}</textarea>
+              </div>
               </div>
         {% endfor %}
         {% endif %}
-      
-        <div class="control row" id="message-field">
+        <div class="control" id="message-field">
         <div id="field">
   <textarea class="textarea has-fixed-size" placeholder="Type a message..." id="text-field" rows="1"></textarea> 
 </div>
@@ -33,51 +32,60 @@
   </button>
 </div>
 </div>
-      <br>
-                
-            </div>
 </div>
-  </div>
+</div>
 </section>
+
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
 <style>
-/* Create three equal columns that floats next to each other */
-.column {
-  vertical-align: middle;
-  float: left;
-  padding: 10px;
-}
 
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
+.message-container {
+  margin: auto;
+  margin-bottom: 10px;
+  width: 45%;
+  display:flex;
+  padding: 0px;
   clear: both;
 }
 
+.message {
+  float:right;
+  flex-grow: 1;
+  width: 90%;
+}
+
+#profile_pic {
+  height:50px;
+  width: 50px;
+  padding: 0px;
+  flex-grow: 1;
+  margin-right: 5px;
+}
+
 #message-field {
-  width: 270px;
+  width: 100%;
   height: 46px;
   margin: auto;
-  cursor: pointer;
   float:right;
+  display:flex;
 }
 
 #field {
   float:left;
   height:46px;
-  width: 200px;
+  width: 83%;
   padding: 0px;
+  flex-grow: 1;
 }
-
 
 #send {
   float:right;
   height:46px;
   width: 70px;
   padding: 0px;
+  flex-grow: 0;
 }
 
 #send-button {
@@ -87,11 +95,21 @@
 
 #text-field {
   height:46px;
-  width: 200px;
+  width: 100%;
 }
+
+#sender_is_current_user {
+  float:left;
+}
+
+#sender_is_profile {
+  float:right;
+}
+
+
 </style>
 <script>
- 
+
  $(document).on("click", "#send-button", function() {
    console.log("Send");
     $.post({
@@ -100,7 +118,7 @@
       data: {"content": $("#text-field").val()},
       success(response) {
         var status = JSON.parse(response)["status"];
-        if (status === "Successfully sent") {$("#text-field").val("");} 
+        if (status === "Successfully sent") {location.reload();} 
       }});
   });
 </script>

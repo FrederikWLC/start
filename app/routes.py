@@ -202,22 +202,6 @@ def connect(username):
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
 
-        if "*" in title:
-            print("Non-valid title")
-            return json.dumps({'status': "Non-valid title: cannot contain '*'"})
-
-        if "!" in title:
-            print("Non-valid title")
-            return json.dumps({'status': "Non-valid title: cannot contain '!'"})
-
-        if "?" in title:
-            print("Non-valid title")
-            return json.dumps({'status': "Non-valid title: cannot contain '?'"})
-
-        if ":" in title:
-            print("Non-valid title")
-            return json.dumps({'status': "Non-valid title: cannot contain ':'"})
-
         application = Application(title=title, content=content, sender=current_user, recipient=profile)
         db.session.add(application)
         db.session.commit()
