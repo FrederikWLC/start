@@ -22,7 +22,7 @@
 
             </div>
             <div class="column" id="rightBox">
-              <a href="/profile/{{profile.username}}/relations/"><p style="color:black;">Relations</p></a>
+              <a {% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %}><p style="color:black;">Relations</p></a>
               {% if not profile == current_user and not current_user.is_related_to(profile) and not current_user.submitted_applications.filter_by(recipient=profile).first() %}
               <a href="/profile/{{profile.username}}/connect/"><p style="color:black;">Connect</p></a>
               {% endif %}

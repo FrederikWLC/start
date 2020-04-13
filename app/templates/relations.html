@@ -12,8 +12,8 @@
         {% for relation in relations %}
 
               <div valign="top" class="row" id="bigBox">
-            <div width="75px" class="column" id="leftBox" onclick="window.location='../../{{relation.username}}/';"><img src="{{ relation.profile_pic(75) }}"></div>
-            <div class="column" id="middleBox" onclick="window.location='../../{{relation.username}}/';">
+            <div width="75px" class="column" id="leftBox" onclick="window.location='/profile/{{relation.username}}/';"><img src="{{ relation.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox" onclick="window.location='/profile/{{relation.username}}/';">
               <h1 style="color:black"><b>   
               {{ relation.name }}</b></h1>
               

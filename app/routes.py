@@ -172,10 +172,14 @@ def profile(username):
 # -------- User page ---------------------------------------------------------- #
 
 
+@app.route("/relations/")
 @app.route("/profile/<username>/relations/", methods=["GET", "POST"])
 @login_required
-def relations(username):
-    profile = User.query.filter_by(username=username).first_or_404()
+def relations(username=None):
+    if username:
+        profile = User.query.filter_by(username=username).first_or_404()
+    else:
+        profile = current_user
     relations = profile.get_relations()
     return render_template('relations.html', relations=relations, profile=profile)
 
