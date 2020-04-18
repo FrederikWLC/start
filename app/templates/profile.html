@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include "navbar.html" %}
+	<section class="hero is-primary is-bold is-medium">
+
+  	<div class="hero-body">
+  
+          
+        <div valign="top" class="row" id="bigBox">
+            <div  width="256px" class="column" id="leftBox"><img src="{{ profile.profile_pic(256) }}"></div>
+            <div class="column" id="middleBox">
+              <h1 style="color:black"><b>
+              
+              {{ profile.name }}</b> {% if profile == current_user %}(You){% endif %}</h1>
+              
+              <h2 style="color:gray">@{{ profile.username }}</h2>
+              <hr>
+                {% if profile.bio %}
+                <p>{{ profile.bio }}</p>
+                {% endif %}
+
+            </div>
+            <div class="column" id="rightBox">
+              <a {% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %}><p style="color:black;">Relations</p></a>
+              {% if not profile == current_user and not current_user.is_related_to(profile) and not current_user.submitted_applications.filter_by(recipient=profile).first() %}
+              <a href="/profile/{{profile.username}}/connect/"><p style="color:black;">Connect</p></a>
+              {% endif %}
+            </div>
+
+        </div>
+
+  </div>
+</section>
+{% include "footer.html" %}
+{% endblock %}
+{% block scripts %}
+<style>
+
+
+
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+#bigBox {
+  width:100%;
+  height: 256px;
+}
+#leftBox {
+  float:left;
+  height:256px;
+  width: 25%;
+  padding: 0px;
+  padding-right: 10px;
+}
+#middleBox {
+  float:middle;
+  height: 256px;
+  width: 50%;
+  background: white;
+}
+
+#rightBox {
+  float:right;
+  height:256px;
+  width: 25%;
+  background: white;
+}
+
+a:hover {
+  font-weight: 550;
+}
+</style>
+<script src="/static/js/navbar.js"></script>>
+{% endblock %}

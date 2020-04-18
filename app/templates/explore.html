@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include "navbar.html" %}
+	<section class="hero is-primary is-bold is-medium">
+
+  	<div class="hero-body">
+    <div id="field" class="container has-text-centered">
+          <div id="explore-box" class="explore-box">
+              <p class="title">Explore</p>
+              <br>
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="location" class="input is-success" type="location" placeholder="Location">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-globe"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="radius" class="input " type="int" placeholder="Radius (km)">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-wifi"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+              <br>
+              <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Explore</a>
+              <br>
+              <br>
+              <i><a id="feedback" class="feedback"></a></i>
+            </div>
+            {% if search and profiles %}
+            {% for profile in profiles %}
+
+              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
+            <div width="75px" class="column" id="leftBox"><img src="{{ profile.profile_pic(75) }}"></div>
+            <div class="column" id="middleBox">
+              <h1 style="color:black"><b>
+              
+              {{ profile.name }}</b> {% if profile == current_user %}(You){% endif %}</h1>
+              
+          </div>
+            <div class="column" id="rightBox">
+              <b>{{profile.haversine_distance(*locargs)}} km </b>
+            </div>
+            <hr>
+        </div>
+              {% endfor %}
+            {% endif %}
+            {% if search and not profiles %}
+            <div>
+              Couldn't find any profiles nearby..
+            </div>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+{% include "footer.html" %}
+{% endblock %}
+{% block scripts %}
+<style>
+
+
+
+/* Create three equal columns that floats next to each other */
+.column {
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width: 425px;
+  height: 75px;
+  margin: auto;
+  cursor: pointer;
+}
+
+#bigBox:hover{
+  outline:3px solid white;
+}
+
+#leftBox {
+  float:left;
+  height:75px;
+  width: 75px;
+  padding: 0px;
+  padding-right: 0px;
+}
+
+#middleBox {
+  float:middle;
+  height: 75px;
+  width: 250px;
+  background: white;
+  padding-left: 1px;
+}
+
+#rightBox {
+  float:right;
+  height:75px;
+  width: 100px;
+  background: white;
+  color: black;
+}
+
+#field {
+  width: 425px;
+  margin: auto;
+}
+</style>
+<script src="../static/js/navbar.js"></script>
+<script src="../static/js/expl0re.js"></script>
+{% endblock %}
