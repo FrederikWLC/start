@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block body %}
+  
+          
+<div class="container has-text-centered" id="container">
+  
+  <div valign="top" id="bigBox" class="row">
+  
+    <div id="leftBox" class="column">
+      <button class="button is-primary is-normal is-rounded is-inverted" id="cancel-button">
+      <span class="icon is-normal is-danger">
+      <i class="fa fa-times fa-2x"></i>
+      </span>
+      </button>
+    </div>
+
+    <div id="middleBox" class="column">
+      <h1 class="title" id="header">Edit Profile</h1>
+    </div>
+    
+    <div id="rightBox" class="column">
+      <button class="button is-primary is-normal is-rounded" id="save-button">
+      <span>Save</span>
+      </button>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <div  width="256px">
+      <img src="{{ current_user.profile_pic(256) }}">
+  </div>
+  
+  <div>
+      <h1><b>{{ current_user.name }}</b></h1>
+              
+      <h2>@{{ current_user.username }}</h2>
+               
+      <hr>
+      {% if current_user.bio %}
+      <p>{{ current_user.bio }}</p>
+      {% endif %}
+
+
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<style>
+
+#container {
+  width: 500px;
+  height: 0px;
+  margin-bottom: 0;
+}
+
+#datop:after {
+  display: table;
+  clear: both;
+  width:100%;
+}
+
+#cancel-button {
+  margin: 10px;
+  border-radius: 0px;
+}
+
+
+#header {
+  margin: 5px;
+  float: middle;
+ font-size: 24px;
+}
+
+
+#save-button {
+  float: right;
+}
+
+.column {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  vertical-align: middle;
+  float: left;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#bigBox {
+  width:100%;
+  height: 50px;
+}
+
+#leftBox {
+  height: 100%;
+  float:left;
+  width: 20%;
+  padding: 0px;
+  padding-right: 10px;
+}
+#middleBox {
+  height: 100%;
+  float:middle;
+  width: 30%;
+}
+
+#rightBox {
+  height: 100%;
+  float:right;
+  width: 50%;
+}
+
+</style>
+<script src="/static/js/navbar.js"></script>
+{% endblock %}

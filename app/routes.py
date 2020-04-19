@@ -267,3 +267,9 @@ def messages(username):
 
     messages = current_user.get_messages_with(profile).all()
     return render_template('messages.html', profile=profile, messages=messages)
+
+
+@app.route("/settings/profile/", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    return render_template('edit_profile.html')
