@@ -20,6 +20,13 @@
                 <p>{{ profile.bio }}</p>
                 {% endif %}
 
+<<<<<<< HEAD
+=======
+
+                          
+                  <button class="button button1">Edit bio</button>
+
+>>>>>>> bbab00ca966e67f8126377848d1194682fbdab84
             </div>
             <div class="column" id="rightBox">
               <a {% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %}><p style="color:black;">Relations</p></a>
@@ -71,6 +78,23 @@
   width: 50%;
   background: white;
 }
+<<<<<<< HEAD
+=======
+.button1 {
+                          border-radius: 4px;
+                          background-color: white; 
+                           color: #00D1B2; 
+                          border: 2px solid #00D1B2;
+                            padding: 0px 15px;
+                              text-align: center;
+                              text-decoration: none;
+                              display: inline-block;
+                              font-size: 16px;
+                              margin: -70px 450px;
+                              cursor: pointer;
+                              }
+
+>>>>>>> bbab00ca966e67f8126377848d1194682fbdab84
 
 #rightBox {
   float:right;

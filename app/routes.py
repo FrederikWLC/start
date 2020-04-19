@@ -90,7 +90,7 @@ def register():
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
-    return "This route is under construction"
+    return "Vi arbejder på det, fuck af"
 
 
 # -------- Home page ---------------------------------------------------------- #
