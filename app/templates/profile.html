@@ -17,18 +17,24 @@
               <h2 style="color:gray">@{{ profile.username }}</h2>
                
               <hr>
-                {% if profile.bio %}
-                <p>{{ profile.bio }}</p>
-                {% endif %}
-
+              <textarea class="textarea has-fixed-size is-success" id="bio" readonly>{% if profile.bio %}{{ profile.bio }}{% endif %}</textarea> 
 
             </div>
             <div class="column" id="rightBox">
-              <a class="button is-primary is-normal is-outlined" id="edit-button" href="/settings/profile/">Edit Profile</a>   
-              <a id="relations"{% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %}><p style="color:black;">Relations</p></a>
-              {% if not profile == current_user and not current_user.is_related_to(profile) and not current_user.submitted_applications.filter_by(recipient=profile).first() %}
-              <a href="/profile/{{profile.username}}/connect/"><p style="color:black;">Connect</p></a>
+              <div class="spacy row">
+              {% if profile == current_user %}
+              <a class="button is-link is-normal is-outlined" id="edit-button" href="/settings/profile/">Edit Profile</a>
+              {% elif current_user.submitted_applications.filter_by(recipient=profile, response=None).first() %}
+              <a class="button is-info is-normal" title="Pending.." disabled>Pending..</a>
+              {% elif not current_user.is_related_to(profile) %}
+              <a class="button is-link is-normal is-outlined" href="/profile/{{profile.username}}/connect/">Connect</a>
+              {% else %}
+              <a class="button is-info is-normal thicc">Connected</a>
               {% endif %}
+            </div>
+            <div class="spacy row">
+              <a id="relations"{% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %} class="button is-primary is-normal is-outlined thicc">Relations</a>
+            </div>
             </div>
 
         </div>
@@ -40,7 +46,16 @@
 {% block scripts %}
 <style>
 
+#bio {
+  border: none;
+  outline: none;
 
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+
+  margin: 0;
+}
 
 /* Create three equal columns that floats next to each other */
 .column {
@@ -90,8 +105,13 @@
   position: relative;
 }
 
-a:hover {
-  font-weight: 550;
+
+.thicc {
+  font-weight: 600;
+}
+
+.spacy {
+  margin-bottom: 10px;
 }
 </style>
 <script src="/static/js/navbar.js"></script>>

@@ -163,10 +163,14 @@ def establish():
 
 
 # -------- User page ---------------------------------------------------------- #
+@app.route("/profile/")
 @app.route("/profile/<username>/", methods=["GET", "POST"])
 @login_required
-def profile(username):
-    profile = User.query.filter_by(username=username).first_or_404()
+def profile(username=None):
+    if username:
+        profile = User.query.filter_by(username=username).first_or_404()
+    else:
+        profile = current_user
     return render_template('profile.html', profile=profile)
 
 # -------- User page ---------------------------------------------------------- #
@@ -272,4 +276,27 @@ def messages(username):
 @app.route("/settings/profile/", methods=["GET", "POST"])
 @login_required
 def edit_profile():
+    if request.method == 'POST':
+        print("POST")
+        name = request.form["name"]
+        bio = request.form["bio"]
+        location = request.form["location"]
+
+        if not name:
+            print("All fields required")
+            return json.dumps({'status': 'Name must be filled in'})
+        if not location:
+            print("All fields required")
+            return json.dumps({'status': 'Location must be filled in'})
+
+        location = geolocator.geocode(location)
+        if not location:
+            print("Non-valid location")
+            return json.dumps({'status': 'Non-valid location'})
+
+        current_user.name = name.strip()
+        current_user.bio = bio.strip()
+        current_user.set_location(location=location, prelocated=True)
+        db.session.commit()
+        return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html')

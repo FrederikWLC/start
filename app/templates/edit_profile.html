@@ -7,11 +7,11 @@
   <div valign="top" id="bigBox" class="row">
   
     <div id="leftBox" class="column">
-      <button class="button is-primary is-normal is-rounded is-inverted" id="cancel-button">
+      <a href="javascript:location.replace('/profile/')" class="button is-primary is-normal is-rounded is-inverted" id="cancel-button">
       <span class="icon is-normal is-danger">
       <i class="fa fa-times fa-2x"></i>
       </span>
-      </button>
+      </a>
     </div>
 
     <div id="middleBox" class="column">
@@ -33,16 +33,20 @@
   </div>
   
   <div>
-      <h1><b>{{ current_user.name }}</b></h1>
-              
-      <h2>@{{ current_user.username }}</h2>
-               
-      <hr>
-      {% if current_user.bio %}
-      <p>{{ current_user.bio }}</p>
-      {% endif %}
+      <h1><b>Name</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your name" id="name-field" rows="1">{{current_user.name}}</textarea> 
+      <br>
+      <h1><b>Bio</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your bio" id="bio-field" rows="3">{% if current_user.bio %}{{ current_user.bio }}{% endif %}</textarea>
+      <br>
+      <h1><b>Location</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="1">{{ current_user.location }}</textarea>
 
+  </div>
 
+  <br>
+
+  <div id="feedback">
   </div>
 
 </div>
@@ -77,6 +81,10 @@
 
 #save-button {
   float: right;
+}
+
+#profile_pic {
+  position:absolute;
 }
 
 .column {
@@ -120,4 +128,28 @@
 
 </style>
 <script src="/static/js/navbar.js"></script>
+<script>
+  function message(status, shake=false, id="") {
+  if (shake) {
+    $("#"+id).effect("shake", {direction: "right", times: 2, distance: 8}, 250);
+  } 
+  document.getElementById("feedback").innerHTML = status;
+  $("#feedback").show().delay(2000).fadeOut();
+}
+ $(document).on("click", "#save-button", function() {
+   console.log("Applying edit");
+    $.post({
+      type: "POST",
+      url: "/settings/profile/",
+      data: {"name": $("#name-field").val(),
+             "bio": $("#bio-field").val(),
+             "location": $("#location-field").val()},
+      success(response) {
+        var status = JSON.parse(response)["status"];
+        if (status === "Successfully saved") { location.replace("/profile/"); }
+        else{message(status, true, "feedback");}
+        
+      }});
+  });
+</script>
 {% endblock %}
