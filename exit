@@ -1,0 +1,158 @@
+[33mcommit 533c904e4b25b7552677b8b8b5abe5f1b60e7b8f[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Merge: ea20591 bbab00c
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sun Apr 19 11:22:35 2020 +0200
+
+    Resolved merge conflict by incorporating both suggestions.
+
+[33mcommit bbab00ca966e67f8126377848d1194682fbdab84[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: NicolajTC <nicolajterndrup@gmail.com>
+Date:   Sat Apr 18 22:58:56 2020 +0200
+
+    Edit bio knap
+
+[33mcommit e3931f17023277ea7a9028a8ca60086c4ff92873[m
+Author: Nicolaj Christensen <nicolajterndrup@gmail.com>
+Date:   Sat Apr 18 22:01:53 2020 +0200
+
+    Overlevelsesnødvendig rettelse
+
+[33mcommit ea2059157c4d475183f351ab99ee987043ee8021[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Mon Apr 13 21:58:27 2020 +0200
+
+    fixed bugs
+
+[33mcommit ce7853ab3d96e6f73d0074ef7dac8e806322f19b[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Mon Apr 13 16:21:01 2020 +0200
+
+    Messages
+
+[33mcommit 6cfd008f562e98176817c474950be26610c4bc86[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sun Apr 12 19:12:48 2020 +0200
+
+    Fixed chat
+
+[33mcommit 40267d9cfe04e7ab0bb7d01d60c35da98cb7fcfe[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sat Apr 11 23:46:10 2020 +0200
+
+    Messages (Don't really work btw)
+
+[33mcommit c046390e8454032612a0f2e1d03bcc6325222d85[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Wed Apr 8 23:06:35 2020 +0200
+
+    Added alot of goodnes: relations + the start of a chat
+
+[33mcommit 030194f1585396ffa6551f69bb5b80ca45ed3b6b[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Wed Apr 8 00:04:16 2020 +0200
+
+    Accept/Reject Application
+
+[33mcommit 7080cf019b63254c6806e366b93d5706e77157d8[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Tue Apr 7 14:38:59 2020 +0200
+
+    Connecting
+
+[33mcommit 6257f0f0cdb7911902195dadb8d919b8667853d7[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Mon Apr 6 23:26:30 2020 +0200
+
+    Added content to sites
+
+[33mcommit 5927de39f061e20472e80482a9a5e89efa91d2c4[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sun Apr 5 20:41:08 2020 +0200
+
+    added connect button
+
+[33mcommit cdf74713739355e29a7cfc531a254f5875f214ba[m
+Merge: 44db743 bdb654a
+Author: Frederik Walther Liberoth Christoffersen <47148276+FrederikWLC@users.noreply.github.com>
+Date:   Sat Apr 4 23:25:00 2020 +0200
+
+    Merge pull request #7 from FrederikWLC/dependabot/pip/bleach-3.1.4
+    
+    Bump bleach from 3.1.0 to 3.1.4
+
+[33mcommit 44db7431eba37e7a25347d93f7f62e09617deeea[m
+Merge: 720c742 1ac431f
+Author: Frederik Walther Liberoth Christoffersen <47148276+FrederikWLC@users.noreply.github.com>
+Date:   Sat Apr 4 23:24:29 2020 +0200
+
+    Merge pull request #6 from FrederikWLC/dependabot/pip/tensorflow-1.15.2
+    
+    Bump tensorflow from 1.14.0 to 1.15.2
+
+[33mcommit 720c742aeaba2a968dcc21040fa95a9ed501d298[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sat Apr 4 23:23:21 2020 +0200
+
+    true greatness
+
+[33mcommit bdb654af1e8b2dc10638b17acf8f436753843649[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Sat Apr 4 19:46:22 2020 +0000
+
+    Bump bleach from 3.1.0 to 3.1.4
+    
+    Bumps [bleach](https://github.com/mozilla/bleach) from 3.1.0 to 3.1.4.
+    - [Release notes](https://github.com/mozilla/bleach/releases)
+    - [Changelog](https://github.com/mozilla/bleach/blob/master/CHANGES)
+    - [Commits](https://github.com/mozilla/bleach/compare/v3.1.0...v3.1.4)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 1ac431f747fb696991fcf8cdebe09979db36f8de[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Sat Apr 4 19:46:16 2020 +0000
+
+    Bump tensorflow from 1.14.0 to 1.15.2
+    
+    Bumps [tensorflow](https://github.com/tensorflow/tensorflow) from 1.14.0 to 1.15.2.
+    - [Release notes](https://github.com/tensorflow/tensorflow/releases)
+    - [Changelog](https://github.com/tensorflow/tensorflow/blob/master/RELEASE.md)
+    - [Commits](https://github.com/tensorflow/tensorflow/compare/v1.14.0...v1.15.2)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 43649710c4ee774c3197844ca57276af2a52ab1c[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sat Apr 4 21:44:45 2020 +0200
+
+    fixed profile layout
+
+[33mcommit 6c869ee930b587d033b58d492cc2dcf991ab66ac[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sat Apr 4 21:23:55 2020 +0200
+
+    Changed a lot of stuff
+
+[33mcommit 949d2465438621b15ee33c92c7c03cecb32ef4e8[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Sun Mar 22 13:18:33 2020 +0100
+
+    Better!
+
+[33mcommit 3d4ce0d776e427e9a589af7b9d1b073bc60a7271[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Fri Jan 31 23:56:19 2020 +0100
+
+    start
+
+[33mcommit 5b517fe059eeb07aa049c9889d5df065676d44d3[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Tue Jan 28 21:53:09 2020 +0100
+
+    start
+
+[33mcommit fd61f626ea5b01fc107ba5d9c9aa2081fdba84d7[m
+Author: Frederik Walther Liberoth Christoffersen <frederik210103@gmail.com>
+Date:   Tue Jan 28 20:58:20 2020 +0100
+
+    start
