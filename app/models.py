@@ -99,6 +99,10 @@ class User(UserMixin, db.Model):
         'Message', backref='recipient', lazy='dynamic',
         foreign_keys='Message.recipient_id')
 
+    specifications = db.relationship(
+        'Specification', backref='owner', lazy='dynamic',
+        foreign_keys='Specification.owner_id')
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -149,7 +153,7 @@ class Application(db.Model):
     response = db.Column(db.Boolean)
 
     def __repr__(self):
-        return "<Application {} -> {}>".format(self.sender_id, self.recipient_id)
+        return "<Application {} -> {}>".format(self.sender.username, self.recipient.username)
 
 
 class Message(db.Model):
@@ -159,4 +163,13 @@ class Message(db.Model):
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return "<Message {} -> {}>".format(self.sender, self.recipient)
+        return "<Message {} -> {}>".format(self.sender.username, self.recipient.username)
+
+
+class Specification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(20), index=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return "<Specification {} >".format(self.title)
