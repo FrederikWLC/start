@@ -32,6 +32,18 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(128))
 
+# Previous query search arguments for the explore function
+    has_previous_explore_search = db.Column(db.Boolean)
+    previous_explore_location = db.Column(db.String(120))
+    previous_explore_latitude = db.Column(db.Float)
+    previous_explore_longitude = db.Column(db.Float)
+    previous_explore_sin_rad_lat = db.Column(db.Float)
+    previous_explore_cos_rad_lat = db.Column(db.Float)
+    previous_explore_rad_lng = db.Column(db.Float)
+
+    previous_explore_radius = db.Column(db.Float)
+    previous_explore_skill = db.Column(db.String(20))
+
     def profile_pic(self, size):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
@@ -81,6 +93,11 @@ class User(UserMixin, db.Model):
     def get_messages_with(self, profile):
         return self.get_received_messages_from(profile).union(self.get_sent_messages_to(profile))
 
+    def get_explore_query(self):
+        if self.previous_explore_skill:
+            return User.query.filter(sqlalchemy.and_(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius), User.has_skill(profile_id=User.id, skill=self.previous_explore_skill)))
+        else:
+            return User.query.filter(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius))
     # Submitted applications:
     submitted_applications = db.relationship(
         'Application', backref='sender', lazy='dynamic',
@@ -99,9 +116,9 @@ class User(UserMixin, db.Model):
         'Message', backref='recipient', lazy='dynamic',
         foreign_keys='Message.recipient_id')
 
-    specifications = db.relationship(
-        'Specification', backref='owner', lazy='dynamic',
-        foreign_keys='Specification.owner_id')
+    skills = db.relationship(
+        'Skill', backref='owner', lazy='dynamic',
+        foreign_keys='Skill.owner_id')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -121,9 +138,28 @@ class User(UserMixin, db.Model):
             self.rad_lng = math.pi * location.longitude / 180
             return location
 
+    def set_previous_explore_args(self, location, radius, skill):
+
+        self.previous_explore_location = location.address
+        self.previous_explore_latitude = location.latitude
+        self.previous_explore_longitude = location.longitude
+        self.previous_explore_sin_rad_lat = math.sin(math.pi * location.latitude / 180)
+        self.previous_explore_cos_rad_lat = math.cos(math.pi * location.latitude / 180)
+        self.previous_explore_rad_lng = math.pi * location.longitude / 180
+
+        self.previous_explore_radius = radius
+        self.previous_explore_skill = skill
+
+        self.has_previous_explore_search = True
+        return True
+
     @hybrid_method
     def is_nearby_flat(self, latitude, longitude, radius):
         return (self.latitude - latitude) * (self.latitude - latitude) * 111 + (self.longitude - longitude) * (self.longitude - longitude) * 111 <= radius * radius
+
+    @hybrid_method
+    def has_skill(self, profile_id, skill):
+        return Skill.query.filter_by(owner_id=profile_id, title=self.previous_explore_skill).scalar() is not None
 
     def haversine_distance(self, sin_rad_lat, cos_rad_lat, rad_lng):
         return round(math.acos(self.cos_rad_lat
@@ -166,10 +202,10 @@ class Message(db.Model):
         return "<Message {} -> {}>".format(self.sender.username, self.recipient.username)
 
 
-class Specification(db.Model):
+class Skill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(20), index=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return "<Specification {} >".format(self.title)
+        return "<Skill {} >".format(self.title)

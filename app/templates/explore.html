@@ -10,6 +10,31 @@
               <p class="title">Explore</p>
               <br>
               <div class="field">
+  <div class="control has-icons-left">
+    <div class="select is-info">
+      <select id="skill">
+        <option value="" disabled hidden selected>Select skill</option>
+        <option>Software</option>
+    <option>Marketing</option>
+    <option>Writhing</option>
+    <option>Photography</option>
+    <option>Videography</option>
+    <option>Photo editing</option>
+    <option>Film editing</option>
+    <option>Music producer</option>
+    <option>Accountant</option>
+    <option>Salesman</option>
+    <option>(X) designer</option>
+    <option>Lawyer</option>
+    <option>Investor</option>
+      </select>
+    </div>
+    <div class="icon is-small is-left">
+      <i class="fas fa-globe"></i>
+    </div>
+  </div>
+</div>
+              <div class="field">
                 <p class="control has-icons-left has-icons-right">
                   <input id="location" class="input is-success" type="location" placeholder="Location">
                   <span class="icon is-small is-left">
@@ -49,7 +74,7 @@
               
           </div>
             <div class="column" id="rightBox">
-              <b>{{profile.haversine_distance(*locargs)}} km </b>
+              <b>{{profile.haversine_distance(current_user.previous_explore_sin_rad_lat, current_user.previous_explore_cos_rad_lat, current_user.previous_explore_rad_lng)}} km </b>
             </div>
             <hr>
         </div>
@@ -126,7 +151,32 @@
   width: 425px;
   margin: auto;
 }
+
+
 </style>
 <script src="../static/js/navbar.js"></script>
-<script src="../static/js/expl0re.js"></script>
+<script type="text/javascript">
+  function message(status, shake=false, id="") {
+  if (shake) {
+    $("#"+id).effect("shake", {direction: "right", times: 2, distance: 8}, 250);
+  } 
+  document.getElementById("feedback").innerHTML = status;
+  $("#feedback").show().delay(2000).fadeOut();
+}
+ $(document).on("click", "#explore-button", function() {
+   console.log("Explore");
+    $.post({
+      type: "POST",
+      url: "/explore",
+      data: {"skill": $("#skill").val(),
+        "radius": $("#radius").val(),
+             "location": $("#location").val()},
+      success(response) {
+        var status = JSON.parse(response)["status"];
+        if (status === "Successfully validated") { location.reload(); }
+        else{message(status, true, "explore-box");}
+        
+      }});
+  });
+</script>
 {% endblock %}
