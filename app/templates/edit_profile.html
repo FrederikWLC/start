@@ -40,8 +40,37 @@
       <textarea class="textarea has-fixed-size" placeholder="Add your bio" id="bio-field" rows="3">{% if current_user.bio %}{{ current_user.bio }}{% endif %}</textarea>
       <br>
       <h1><b>Location</b></h1>
-      <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="1">{{ current_user.location }}</textarea>
+      <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="2">{{ current_user.location }}</textarea>
+      <br>
+      <h1><b>Skills</b></h1>
 
+      <div id="skills">
+      
+      </div>
+
+        <div id='select-skill' class='select is-info vanish'> 
+        <select id="selected-skill"> 
+          <option value='' disabled hidden selected>Select skill</option> 
+          <option>Software</option>
+          <option>Marketing</option>
+          <option>Writhing</option>
+          <option>Photography</option>
+          <option>Videography</option>
+          <option>Photo editing</option>
+          <option>Film editing</option>
+          <option>Music producer</option>
+          <option>Accountant</option>
+          <option>Salesman</option>
+          <option>(X) designer</option>
+          <option>Lawyer</option>
+          <option>Investor</option>
+        </select>
+      </div>
+        <button id='add-skill' class='button is-info is-normal is-inverted vanish'><span>Add</span><span class='icon is-normal is-danger'><i class='fa fa-plus'></i></span></button>
+      <button id="add-a-skill" class="button is-info is-normal is-inverted">
+      <span>Add skill</span>
+      <span class="icon is-normal is-danger"><i class="fa fa-plus"></i>
+      </span></button>
   </div>
 
   <br>
@@ -53,6 +82,7 @@
 {% endblock %}
 {% block scripts %}
 <style>
+
 
 #container {
   width: 500px;
@@ -126,6 +156,17 @@
   width: 50%;
 }
 
+.vanish {
+  display: none;
+}
+
+.skill {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: inline-block;
+}
 </style>
 <script src="/static/js/navbar.js"></script>
 <script>
@@ -151,5 +192,24 @@
         
       }});
   });
+
+ $(document).on("click", "#add-a-skill", function() {
+    $('#add-a-skill').addClass("vanish");
+    $('#select-skill').removeClass("vanish");
+    $('#add-skill').removeClass("vanish")
+  });
+
+ $(document).on("click", "#add-skill", function() {
+  $('#select-skill').addClass("vanish");
+  $('#add-skill').addClass("vanish");
+  $('#add-a-skill').removeClass("vanish");
+  $("#skills").append("<div class='skill'><button class='button is-info is-normal is-'><span>"+$('#selected-skill').val()+"</span><span class='icon is-normal remove-skill'><i class='fa fa-times'></i></span></button></div>");
+ });
+
+
+ $(document).on("click", ".remove-skill", function() {
+  $(this).closest('div').remove();
+});
+
 </script>
 {% endblock %}
