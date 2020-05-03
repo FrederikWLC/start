@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
-from app.models import User, Application, Message, sqlalchemy
+from app.models import User, Application, Message, Skill, sqlalchemy
 from app.funcs import geocode
 import json
 import folium
@@ -119,6 +119,9 @@ def explore():
         skill = request.form["skill"]
         radius = request.form["radius"]
 
+        if not skill:
+            skill = None
+
         if not location or not radius:
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
@@ -135,7 +138,7 @@ def explore():
             return json.dumps({'status': 'Non-valid radius'})
 
         print(f"Successfully verified")
-        print(f"Searching potential co-entrepreneur with radius {radius} and location {location}")
+        print(f"Searching potential co-entrepreneur with radius {radius}, location {location} and skill {skill}")
 
         current_user.set_previous_explore_args(location=location, radius=radius, skill=skill)
         db.session.commit()
@@ -280,10 +283,12 @@ def edit_profile():
         name = request.form["name"]
         bio = request.form["bio"]
         location = request.form["location"]
-
+        skills = eval(request.form["skills"])
+        print(skills)
         if not name:
             print("All fields required")
             return json.dumps({'status': 'Name must be filled in'})
+
         if not location:
             print("All fields required")
             return json.dumps({'status': 'Location must be filled in'})
@@ -296,6 +301,19 @@ def edit_profile():
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
+
+        # Add skills that are not already there
+        for skill in skills:
+            if not current_user.skills.filter_by(title=skill).first():
+                skill = Skill(owner=current_user, title=skill)
+                db.session.add(skill)
+
+        # Delete skills that are meant to be deleted
+        for skill in current_user.skills:
+            if not skill.title in skills:
+                db.session.delete(skill)
+
+        print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html')

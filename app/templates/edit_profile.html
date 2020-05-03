@@ -43,9 +43,15 @@
       <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="2">{{ current_user.location }}</textarea>
       <br>
       <h1><b>Skills</b></h1>
-
-      <div id="skills">
       
+      <div id="skills">
+      {% for skill in current_user.skills %}
+        <div class='skill'>
+          <button class='button is-info is-normal is-'>
+            <span>{{ skill.title }}</span>
+            <span class='icon is-normal remove-skill'><i class='fa fa-times'></i></span></button>
+        </div>
+      {% endfor %}
       </div>
 
         <div id='select-skill' class='select is-info vanish'> 
@@ -53,7 +59,7 @@
           <option value='' disabled hidden selected>Select skill</option> 
           <option>Software</option>
           <option>Marketing</option>
-          <option>Writhing</option>
+          <option>Writing</option>
           <option>Photography</option>
           <option>Videography</option>
           <option>Photo editing</option>
@@ -177,14 +183,17 @@
   document.getElementById("feedback").innerHTML = status;
   $("#feedback").show().delay(2000).fadeOut();
 }
+
  $(document).on("click", "#save-button", function() {
    console.log("Applying edit");
+   var skills = $("#skills :button").map(function() { return $(this).children().first().text();}).get();
     $.post({
       type: "POST",
       url: "/settings/profile/",
       data: {"name": $("#name-field").val(),
              "bio": $("#bio-field").val(),
-             "location": $("#location-field").val()},
+             "location": $("#location-field").val(),
+             "skills": JSON.stringify(skills)},
       success(response) {
         var status = JSON.parse(response)["status"];
         if (status === "Successfully saved") { location.replace("/profile/"); }
@@ -192,6 +201,7 @@
         
       }});
   });
+
 
  $(document).on("click", "#add-a-skill", function() {
     $('#add-a-skill').addClass("vanish");

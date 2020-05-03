@@ -94,10 +94,24 @@ class User(UserMixin, db.Model):
         return self.get_received_messages_from(profile).union(self.get_sent_messages_to(profile))
 
     def get_explore_query(self):
+        query = User.query.filter(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius))
+
         if self.previous_explore_skill:
-            return User.query.filter(sqlalchemy.and_(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius), User.has_skill(profile_id=User.id, skill=self.previous_explore_skill)))
-        else:
-            return User.query.filter(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius))
+            return query.filter(User.skills.any(Skill.title == self.previous_explore_skill))
+
+        return query
+
+    def clear_explore_query(self):
+        self.has_previous_explore_search = False
+        self.previous_explore_location = None
+        self.previous_explore_latitude = None
+        self.previous_explore_longitude = None
+        self.previous_explore_sin_rad_lat = None
+        self.previous_explore_cos_rad_lat = None
+        self.previous_explore_rad_lng = None
+        self.previous_explore_radius = None
+        self.previous_explore_skill = None
+
     # Submitted applications:
     submitted_applications = db.relationship(
         'Application', backref='sender', lazy='dynamic',
@@ -157,10 +171,6 @@ class User(UserMixin, db.Model):
     def is_nearby_flat(self, latitude, longitude, radius):
         return (self.latitude - latitude) * (self.latitude - latitude) * 111 + (self.longitude - longitude) * (self.longitude - longitude) * 111 <= radius * radius
 
-    @hybrid_method
-    def has_skill(self, profile_id, skill):
-        return Skill.query.filter_by(owner_id=profile_id, title=self.previous_explore_skill).scalar() is not None
-
     def haversine_distance(self, sin_rad_lat, cos_rad_lat, rad_lng):
         return round(math.acos(self.cos_rad_lat
                                * cos_rad_lat
@@ -208,4 +218,4 @@ class Skill(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return "<Skill {} >".format(self.title)
+        return "<Skill {}>".format(self.title)
