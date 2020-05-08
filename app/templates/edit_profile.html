@@ -49,7 +49,7 @@
         <div class='skill'>
           <button class='button is-info is-normal is-'>
             <span>{{ skill.title }}</span>
-            <span class='icon is-normal remove-skill'><i class='fa fa-times'></i></span></button>
+            <span class='icon remove-skill'><a class="delete"></a></span></button>
         </div>
       {% endfor %}
       </div>
@@ -213,7 +213,7 @@
   $('#select-skill').addClass("vanish");
   $('#add-skill').addClass("vanish");
   $('#add-a-skill').removeClass("vanish");
-  $("#skills").append("<div class='skill'><button class='button is-info is-normal is-'><span>"+$('#selected-skill').val()+"</span><span class='icon is-normal remove-skill'><i class='fa fa-times'></i></span></button></div>");
+  $("#skills").append("<div class='skill'><button class='button is-info is-normal is-'><span>"+$('#selected-skill').val()+"</span><span class='icon remove-skill'><a class='delete'></a></span></button></div>");
  });
 
 

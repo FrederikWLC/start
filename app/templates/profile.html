@@ -16,7 +16,7 @@
               
               <h2 style="color:gray">@{{ profile.username }}</h2>
                
-              <hr>
+              <hr id="seperation">
               <textarea class="textarea has-fixed-size is-success" id="bio" readonly>{% if profile.bio %}{{ profile.bio }}{% endif %}</textarea> 
 
             </div>
@@ -39,7 +39,15 @@
 
         </div>
 
-        <div id="skillBox" class="row">
+        <div id="skillBox" class="row has-text-centered">
+          <h3 class="title is-4" id="skill-title" style="color:black"><b>Skills</b></h3>
+          {% for skill in current_user.skills %}
+          <div class='skill'>
+          <button class='button is-info is-normal is-'>
+            <span>{{ skill.title }}</span>
+            </button>
+        </div>
+      {% endfor %}
         </div>
 
   </div>
@@ -58,6 +66,7 @@
   box-shadow: none;
 
   margin: 0;
+  padding: 0;
 }
 
 /* Create three equal columns that floats next to each other */
@@ -74,12 +83,12 @@
   clear: both;
 }
 
-
 #bigBox {
   width:100%;
   height: 256px;
   display: flex;
 }
+
 #leftBox {
   float:left;
   height:256px;
@@ -88,6 +97,7 @@
   margin-right: 10px;
   flex-grow: 2;
 }
+
 #middleBox {
   float:middle;
   height: 256px;
@@ -126,6 +136,23 @@
 
 .spacy {
   margin-bottom: 10px;
+}
+
+.skill {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+#skill-title {
+  padding-top: 10px;
+}
+
+#seperation {
+  padding: 0;
+  margin: 10px;
 }
 </style>
 <script src="/static/js/navbar.js"></script>>
