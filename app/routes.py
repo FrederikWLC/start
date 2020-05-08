@@ -2,8 +2,9 @@
 from flask import redirect, url_for, render_template, request, session, flash, abort
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-from app import app, db, geolocator
-from app.models import User, Application, Message, sqlalchemy
+from app import app, db
+from app.models import User, Application, Message, Skill, sqlalchemy
+from app.funcs import geocode
 import json
 import folium
 import re
@@ -69,7 +70,7 @@ def register():
             print("Invalid email")
             return json.dumps({'status': 'Invalid email'})
 
-        location = geolocator.geocode(location)
+        location = geocode(location)
         if not location:
             print("Non-valid location")
             return json.dumps({'status': 'Non-valid location'})
@@ -114,16 +115,18 @@ def explore():
 
     if request.method == 'POST':
 
-        global location
         location = request.form["location"]
-
+        skill = request.form["skill"]
         radius = request.form["radius"]
+
+        if not skill:
+            skill = None
 
         if not location or not radius:
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
 
-        location = geolocator.geocode(location)
+        location = geocode(location)
         if not location:
             print("Non-valid location")
             return json.dumps({'status': 'Non-valid location'})
@@ -135,17 +138,16 @@ def explore():
             return json.dumps({'status': 'Non-valid radius'})
 
         print(f"Successfully verified")
-        print(f"Searching potential co-entrepreneur with radius {radius} and location {location}")
-        global explore_query
-        explore_query = User.query.filter(User.is_nearby_flat(latitude=location.latitude, longitude=location.longitude, radius=radius)).limit(5).all()
-        print(explore_query)
+        print(f"Searching potential co-entrepreneur with radius {radius}, location {location} and skill {skill}")
 
+        current_user.set_previous_explore_args(location=location, radius=radius, skill=skill)
+        db.session.commit()
         return json.dumps({'status': 'Successfully validated'})
 
-    try:
-        location.address
-        return render_template("explore.html", profiles=explore_query, locargs=[math.sin(math.pi * location.latitude / 180), math.cos(math.pi * location.latitude / 180), math.pi * location.longitude / 180], search=True)
-    except NameError:
+    if current_user.has_previous_explore_search:
+        profiles = current_user.get_explore_query().limit(5).all()
+        return render_template("explore.html", profiles=profiles, search=True)
+    else:
         print("NO query")
         return render_template("explore.html", profiles=None, search=False)
 
@@ -281,15 +283,17 @@ def edit_profile():
         name = request.form["name"]
         bio = request.form["bio"]
         location = request.form["location"]
-
+        skills = eval(request.form["skills"])
+        print(skills)
         if not name:
             print("All fields required")
             return json.dumps({'status': 'Name must be filled in'})
+
         if not location:
             print("All fields required")
             return json.dumps({'status': 'Location must be filled in'})
 
-        location = geolocator.geocode(location)
+        location = geocode(location)
         if not location:
             print("Non-valid location")
             return json.dumps({'status': 'Non-valid location'})
@@ -297,6 +301,19 @@ def edit_profile():
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
+
+        # Add skills that are not already there
+        for skill in skills:
+            if not current_user.skills.filter_by(title=skill).first():
+                skill = Skill(owner=current_user, title=skill)
+                db.session.add(skill)
+
+        # Delete skills that are meant to be deleted
+        for skill in current_user.skills:
+            if not skill.title in skills:
+                db.session.delete(skill)
+
+        print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html')
