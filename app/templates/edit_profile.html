@@ -268,8 +268,10 @@
 
 
 function loadFile(input) {
+  if (event.target.files[0]) {
   $("#image").remove();
   $("#image-wrapper").prepend('<img id="image" src="'+URL.createObjectURL(event.target.files[0])+'">');
+}
   console.log("WOOOOOW");
 };
 
