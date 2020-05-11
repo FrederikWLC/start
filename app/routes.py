@@ -4,11 +4,12 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from werkzeug.urls import url_parse
 from app import app, db
 from app.models import User, Application, Message, Skill, sqlalchemy
-from app.funcs import geocode
+from app.funcs import geocode, get_image_from
 import json
 import folium
 import re
 import math
+from PIL import Image
 
 # ======== Routing =========================================================== #
 # -------- Login ------------------------------------------------------------- #
@@ -284,7 +285,12 @@ def edit_profile():
         bio = request.form["bio"]
         location = request.form["location"]
         skills = eval(request.form["skills"])
-        print(skills)
+        if "image" in request.files:
+            file = request.files["image"]
+        else:
+            file = None
+        print(file)
+
         if not name:
             print("All fields required")
             return json.dumps({'status': 'Name must be filled in'})
@@ -298,6 +304,9 @@ def edit_profile():
             print("Non-valid location")
             return json.dumps({'status': 'Non-valid location'})
 
+        if file:
+            image = Image.open(file)
+            current_user.save_profile_pic(image)
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)

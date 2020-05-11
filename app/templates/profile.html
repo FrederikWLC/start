@@ -8,7 +8,7 @@
   
           
         <div valign="top" class="row" id="bigBox">
-            <div  width="256px" class="column" id="leftBox"><img src="{{ profile.profile_pic(256) }}"></div>
+            <div  width="256px" class="column" id="leftBox"><img id="profile_pic" src="{{ profile.get_profile_pic(256) }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
               
@@ -98,6 +98,9 @@
   flex-grow: 2;
 }
 
+#profile_pic {
+  background-color: white;
+}
 #middleBox {
   float:middle;
   height: 256px;
