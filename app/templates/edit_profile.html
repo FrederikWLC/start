@@ -30,7 +30,7 @@
 
   <div id="profile_pic">
       <div id="image-wrapper" class="back-element">
-      <img id="image" src="{{ current_user.profile_pic(256) }}">
+      <img id="image" src="{{ current_user.get_profile_pic(256) }}">
       </div>
       <input type="file"  accept="image/*" name="image" id="upload" onchange="loadFile(event)" style="display: none;">
       <button class="button is-success is-large is-inverted front-element" id="upload-button">
@@ -232,13 +232,24 @@
  $(document).on("click", "#save-button", function() {
    console.log("Applying edit");
    var skills = $("#skills :button").map(function() { return $(this).children().first().text();}).get();
+   
+   var formData = new FormData();
+   formData.append('image', $("#upload").prop('files')[0]);
+
+   formData.append("name", $("#name-field").val());
+
+   formData.append("bio", $("#bio-field").val());
+
+   formData.append("location", $("#location-field").val());
+
+   formData.append("skills", JSON.stringify(skills));
+
     $.post({
       type: "POST",
       url: "/settings/profile/",
-      data: {"name": $("#name-field").val(),
-             "bio": $("#bio-field").val(),
-             "location": $("#location-field").val(),
-             "skills": JSON.stringify(skills)},
+      data: formData,
+      processData: false,
+      contentType: false,
       success(response) {
         var status = JSON.parse(response)["status"];
         if (status === "Successfully saved") { location.replace("/profile/"); }
@@ -269,8 +280,7 @@
 
 function loadFile(input) {
   if (event.target.files[0]) {
-  $("#image").remove();
-  $("#image-wrapper").prepend('<img id="image" src="'+URL.createObjectURL(event.target.files[0])+'">');
+  $("#image").attr('src', URL.createObjectURL(event.target.files[0]));
 }
   console.log("WOOOOOW");
 };
