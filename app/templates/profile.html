@@ -8,7 +8,10 @@
   
           
         <div valign="top" class="row" id="bigBox">
-            <div  width="256px" class="column" id="leftBox"><img id="profile_pic" src="{{ profile.get_profile_pic(256) }}"></div>
+            <div  width="256px" class="column" id="leftBox">
+              <div id="profile_pic">
+              <img id="image" src="{{ profile.get_profile_pic(256) }}"></div>
+              </div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
               
@@ -100,7 +103,15 @@
 
 #profile_pic {
   background-color: white;
+  width: 255px;
+  height: 255px;
 }
+
+#image {
+  width: 100%;
+  height: 100%;
+}
+
 #middleBox {
   float:middle;
   height: 256px;
