@@ -8,6 +8,7 @@ from flask_login import UserMixin
 from flask import url_for
 import math
 from hashlib import md5
+from datetime import datetime
 
 
 @login.user_loader
@@ -36,6 +37,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(128))
 
+    profile_pic_filename = db.Column(db.String(20))
+
 # Previous query search arguments for the explore function
     has_previous_explore_search = db.Column(db.Boolean)
     previous_explore_location = db.Column(db.String(120))
@@ -55,23 +58,24 @@ class User(UserMixin, db.Model):
 
     def remove_profile_pic(self):
         if self.has_profile_pic():
-            filename = glob.glob(profile_pic_folder)
-            for f in files:
-                os.remove(f)
+            profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
+            for fname in os.listdir(profile_pic_folder):
+                path = Path(os.path.join(profile_pic_folder, fname))
+                path.unlink()
 
     def save_profile_pic(self, image):
         profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
         self.remove_profile_pic()
-        profile_pic_path = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username, f'image.{image.format}')
+        self.profile_pic_filename = f"{datetime.now().strftime('%Y,%m,%d,%H,%M,%S')}.{image.format}"
+        profile_pic_path = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username, self.profile_pic_filename)
         Path(profile_pic_folder).mkdir(parents=True, exist_ok=True)
         image.save(profile_pic_path)
 
     def get_profile_pic(self, size):
         if self.has_profile_pic():
             profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
-            filename = os.listdir(profile_pic_folder)[0]
-            print(filename)
-            url = url_for('static', filename=f"images/profile_pics/{self.username}/{filename}")
+            print(self.profile_pic_filename)
+            url = url_for('static', filename=f"images/profile_pics/{self.username}/{self.profile_pic_filename}")
             print(url)
             return url
 
