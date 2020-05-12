@@ -12,8 +12,8 @@
             {% for application in applications %}
               <div valign="top" class="row" id="bigBox" onclick="window.location='establish/application/{{application.sender.username}}/';">
             
-            <div width="75px" class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
-            <div class="column" id="middleBox">
+            <div class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
+            <div id="image" class="column" id="middleBox">
               <h1 style="color:black"><b>   
               {{ application.sender.name }}</b></h1>
               
@@ -73,6 +73,11 @@
   padding: 0px;
   padding-right: 0px;
   background-color: white;
+}
+
+#image {
+  width: 100%;
+  height: 100%;
 }
 
 #middleBox {
