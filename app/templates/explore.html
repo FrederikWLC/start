@@ -66,7 +66,7 @@
             {% for profile in profiles %}
 
               <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
-            <div width="75px" class="column" id="leftBox"><img src="{{ profile.get_profile_pic(75) }}"></div>
+            <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic(75) }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
               
@@ -130,6 +130,11 @@
   padding: 0px;
   padding-right: 0px;
   background-color: white;
+}
+
+#image {
+  width: 100%;
+  height: 100%;
 }
 
 #middleBox {

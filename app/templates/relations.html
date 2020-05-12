@@ -12,7 +12,7 @@
         {% for relation in relations %}
 
               <div valign="top" class="row" id="bigBox">
-            <div width="75px" class="column" id="leftBox" onclick="window.location='/profile/{{relation.username}}/';"><img src="{{ relation.profile_pic(75) }}"></div>
+            <div class="column" id="leftBox" onclick="window.location='/profile/{{relation.username}}/';"><img id="image" src="{{ relation.profile_pic(75) }}"></div>
             <div class="column" id="middleBox" onclick="window.location='/profile/{{relation.username}}/';">
               <h1 style="color:black"><b>   
               {{ relation.name }}</b></h1>
@@ -78,6 +78,11 @@
   padding: 0px;
   padding-right: 0px;
   background-color: white;
+}
+
+#image {
+  width: 100%;
+  height: 100%;
 }
 
 #middleBox {
