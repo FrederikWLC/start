@@ -135,6 +135,16 @@ class User(UserMixin, db.Model):
 
         return query
 
+    def has_skill(self, title):
+        return any([skill.title == title for skill in self.skills.all()])
+
+    def has_skills(self, titles):
+        user_titles = self.get_skill_titles()
+        return all([title in user_titles for title in titles])
+
+    def get_skill_titles(self):
+        return [skill.title for skill in self.skills.all()]
+
     def clear_explore_query(self):
         self.has_previous_explore_search = False
         self.previous_explore_location = None

@@ -325,4 +325,8 @@ def edit_profile():
         print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
-    return render_template('edit_profile.html')
+    return render_template('edit_profile.html', \
+        available_skills=["Marketing", "Writing", "Photography", \
+        "Videography", "Photo editing", "Film editing", \
+        "Music producer", "Accountant", "Salesman", \
+        "(X) designer", "Lawyer", "Investor"])
