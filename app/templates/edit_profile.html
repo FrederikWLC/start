@@ -50,8 +50,57 @@
       <h1><b>Location</b></h1>
       <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="2">{{ current_user.location }}</textarea>
       <br>
+      <h1><b>Birthday</b></h1>
+      <div>
+      <div  class='select'> 
+        <select id="month"> 
+          <option value='' disabled hidden selected>Month</option> 
+          <option value='1' {% if current_user.birthday.month == 1 %} selected {% endif %}>January</option>
+          <option value='2' {% if current_user.birthday.month == 2 %} selected {% endif %}>February</option> 
+          <option value='3' {% if current_user.birthday.month == 3 %} selected {% endif %}>March</option> 
+          <option value='4' {% if current_user.birthday.month == 4 %} selected {% endif %}>April</option> 
+          <option value='5' {% if current_user.birthday.month == 5 %} selected {% endif %}>May</option> 
+          <option value='6' {% if current_user.birthday.month == 6 %} selected {% endif %}>June</option> 
+          <option value='7' {% if current_user.birthday.month == 7 %} selected {% endif %}>July</option> 
+          <option value='8' {% if current_user.birthday.month == 8 %} selected {% endif %}>August</option> 
+          <option value='9' {% if current_user.birthday.month == 9 %} selected {% endif %}>September</option> 
+          <option value='10' {% if current_user.birthday.month == 10 %} selected {% endif %}>October</option> 
+          <option value='11' {% if current_user.birthday.month == 11 %} selected {% endif %}>November</option> 
+          <option value='12' {% if current_user.birthday.month == 12 %} selected {% endif %}>December</option> 
+        </select>
+      </div>
+      <div  class='select'> 
+        <select id="day"> 
+          <option value='' disabled hidden selected>Day</option> 
+          {% for i in range(1,32) %}
+          <option value='{{i}}' {% if current_user.birthday.day == i %} selected {% endif %}>{{i}}</option> 
+          {% endfor %}
+        </select>
+      </div>
+      <div  class='select'> 
+        <select id="year"> 
+          <option value='' disabled hidden selected>Year</option> 
+          {% for i in range(2020,1899,-1) %}
+          <option value='{{i}}' {% if current_user.birthday.year == i %} selected {% endif %}>{{i}}</option> 
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+      <br>
+
+      <h1><b>Gender</b></h1>
+      <div>
+      <div class='select'> 
+        <select id="gender"> 
+          <option value='0' selected>Unknown</option>
+          <option value='1' {% if current_user.gender == 1 %} selected {% endif %}>Male</option>
+          <option value='2' {% if current_user.gender == 2 %} selected {% endif %}>Female</option>
+          <option value='3' {% if current_user.gender == 3 %} selected {% endif %}>Other</option>
+      </select>
+    </div>
+  </div>
+      <br>
       <h1><b>Skills</b></h1>
-      
       <div id="skills">
       {% for skill in current_user.skills %}
         <div class='skill'>
@@ -233,6 +282,26 @@
    formData.append("bio", $("#bio-field").val());
 
    formData.append("location", $("#location-field").val());
+
+   if ($("#month").val() === null) {
+    formData.append("month", '');
+   } else {
+    formData.append("month", $("#month").val());
+  }
+   
+   if ($("#day").val() === null) {
+    formData.append("day", '');
+   } else {
+    formData.append("day", $("#day").val());
+  }
+
+  if ($("#year").val() === null) {
+    formData.append("year", '');
+   } else {
+    formData.append("year", $("#year").val());
+  }
+
+   formData.append("gender", $("#gender").val());
 
    formData.append("skills", JSON.stringify(skills));
 

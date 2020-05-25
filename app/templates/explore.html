@@ -2,7 +2,7 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-medium">
+	<section class="hero is-primary is-bold is-medium" style="user-select: none;">
 
   	<div class="hero-body">
     <div id="field" class="container has-text-centered">
@@ -11,10 +11,36 @@
               <br>
               <div class="field">
   <div class="control has-icons-left">
-    <div class="select is-info">
-      <select id="skill">
-        <option value="" disabled hidden selected>Select skill</option>
-        <option>Software</option>
+
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="location" class="input is-success" type="location" placeholder="Location">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-globe"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+
+              <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                  <input id="radius" class="input " type="int" placeholder="Radius (km)">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-wifi"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fa fa-check"></i>
+                  </span>
+                </p>
+              </div>
+
+<div style="margin: 0 auto; display: table;">
+    <div class="select is-primary">
+    <select id="skill">
+    <option value="" selected>All</option>
+    <option>Software</option>
     <option>Marketing</option>
     <option>Writing</option>
     <option>Photography</option>
@@ -27,35 +53,36 @@
     <option>(X) designer</option>
     <option>Lawyer</option>
     <option>Investor</option>
-      </select>
-    </div>
+    </select>
+    
     <div class="icon is-small is-left">
-      <i class="fas fa-globe"></i>
+      <i class="fa fa-star"></i>
+      </div>
     </div>
+
+<div class="select is-primary">
+    <select id="skill">
+    <option value="" selected>All</option>
+    <option>Male</option>
+    <option>Female</option>
+    <option>Other</option>
+    </select>
+    
+    <div class="icon is-small is-left">
+      <i class="fa fa-intersex"></i>
+      </div>
+    
   </div>
 </div>
-              <div class="field">
-                <p class="control has-icons-left has-icons-right">
-                  <input id="location" class="input is-success" type="location" placeholder="Location">
-                  <span class="icon is-small is-left">
-                    <i class="fa fa-globe"></i>
-                  </span>
-                  <span class="icon is-small is-right">
-                    <i class="fa fa-check"></i>
-                  </span>
-                </p>
-              </div>
-              <div class="field">
-                <p class="control has-icons-left has-icons-right">
-                  <input id="radius" class="input " type="int" placeholder="Radius (km)">
-                  <span class="icon is-small is-left">
-                    <i class="fa fa-wifi"></i>
-                  </span>
-                  <span class="icon is-small is-right">
-                    <i class="fa fa-check"></i>
-                  </span>
-                </p>
-              </div>
+  <div>
+  <p style="float: left;">Age:</p>
+  <p id="amount" style="float: right;"></p>
+ </div>
+  <br>
+<div id="slider-range"></div>
+
+  </div>
+</div>
               <br>
               <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Explore</a>
               <br>
@@ -63,7 +90,7 @@
               <i><a id="feedback" class="feedback"></a></i>
             </div>
             {% if search and profiles %}
-            {% for profile in profiles %}
+            {% for profile, distance in zip(profiles, distances) %}
 
               <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
             <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic(75) }}"></div>
@@ -74,7 +101,7 @@
               
           </div>
             <div class="column" id="rightBox">
-              <b>{{profile.haversine_distance(current_user.previous_explore_sin_rad_lat, current_user.previous_explore_cos_rad_lat, current_user.previous_explore_rad_lng)}} km </b>
+              <b>{{distance}} km </b>
             </div>
             <hr>
         </div>
@@ -158,7 +185,17 @@
   margin: auto;
 }
 
+#slider-range {
+  background: rgb(255,255,255);
+}
 
+#slider-range .ui-slider-range {
+  background: rgb(50,255,50);
+}
+
+.ui-slider .ui-slider-handle {
+
+}
 </style>
 <script src="../static/js/navbar.js"></script>
 <script type="text/javascript">
@@ -173,16 +210,30 @@
    console.log("Explore");
     $.post({
       type: "POST",
-      url: "/explore",
+      url: "/explore/",
       data: {"skill": $("#skill").val(),
         "radius": $("#radius").val(),
              "location": $("#location").val()},
       success(response) {
         var status = JSON.parse(response)["status"];
-        if (status === "Successfully validated") { location.reload(); }
+        if (status === "Successfully validated") { location.replace(JSON.parse(response)["url"]); }
         else{message(status, true, "explore-box");}
         
       }});
   });
+
+ $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 13,
+      max: 120,
+      values: [ 13, 120 ],
+      slide: function( event, ui ) {
+        $( "#amount" ).text( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#amount" ).text( $( "#slider-range" ).slider( "values", 0 ) +
+      " - " + $( "#slider-range" ).slider( "values", 1 ) );
+  } );
 </script>
 {% endblock %}

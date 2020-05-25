@@ -9,6 +9,7 @@ from flask import url_for
 import math
 from hashlib import md5
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 
 @login.user_loader
@@ -24,6 +25,8 @@ befriends = db.Table('befriends',
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120), index=True)
+    birthday = db.Column(db.DateTime)
+    gender = db.Column(db.Integer, default=0)
 
     location = db.Column(db.String(120))
     latitude = db.Column(db.Float)
@@ -38,18 +41,6 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
 
     profile_pic_filename = db.Column(db.String(20))
-
-# Previous query search arguments for the explore function
-    has_previous_explore_search = db.Column(db.Boolean)
-    previous_explore_location = db.Column(db.String(120))
-    previous_explore_latitude = db.Column(db.Float)
-    previous_explore_longitude = db.Column(db.Float)
-    previous_explore_sin_rad_lat = db.Column(db.Float)
-    previous_explore_cos_rad_lat = db.Column(db.Float)
-    previous_explore_rad_lng = db.Column(db.Float)
-
-    previous_explore_radius = db.Column(db.Float)
-    previous_explore_skill = db.Column(db.String(20))
 
     def has_profile_pic(self):
         profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
@@ -127,14 +118,6 @@ class User(UserMixin, db.Model):
     def get_messages_with(self, profile):
         return self.get_received_messages_from(profile).union(self.get_sent_messages_to(profile))
 
-    def get_explore_query(self):
-        query = User.query.filter(User.is_nearby_flat(latitude=self.previous_explore_latitude, longitude=self.previous_explore_longitude, radius=self.previous_explore_radius))
-
-        if self.previous_explore_skill:
-            return query.filter(User.skills.any(Skill.title == self.previous_explore_skill))
-
-        return query
-
     def has_skill(self, title):
         return any([skill.title == title for skill in self.skills.all()])
 
@@ -144,6 +127,14 @@ class User(UserMixin, db.Model):
 
     def get_skill_titles(self):
         return [skill.title for skill in self.skills.all()]
+
+    @hybrid_property
+    def get_age(self):
+        return (datetime.now() - relativedelta(years=self.birthday.year, months=self.birthday.month, days=self.birthday.day)).year
+
+    @hybrid_method
+    def age_is_between(self, min_age, max_age):
+        return min_age < self.get_age() > max_age
 
     def clear_explore_query(self):
         self.has_previous_explore_search = False
@@ -196,35 +187,42 @@ class User(UserMixin, db.Model):
             self.rad_lng = math.pi * location.longitude / 180
             return location
 
-    def set_previous_explore_args(self, location, radius, skill):
-
-        self.previous_explore_location = location.address
-        self.previous_explore_latitude = location.latitude
-        self.previous_explore_longitude = location.longitude
-        self.previous_explore_sin_rad_lat = math.sin(math.pi * location.latitude / 180)
-        self.previous_explore_cos_rad_lat = math.cos(math.pi * location.latitude / 180)
-        self.previous_explore_rad_lng = math.pi * location.longitude / 180
-
-        self.previous_explore_radius = radius
-        self.previous_explore_skill = skill
-
-        self.has_previous_explore_search = True
-        return True
-
-    @ hybrid_method
+    @hybrid_method
     def is_nearby_flat(self, latitude, longitude, radius):
         return (self.latitude - latitude) * (self.latitude - latitude) * 111 + (self.longitude - longitude) * (self.longitude - longitude) * 111 <= radius * radius
 
-    def haversine_distance(self, sin_rad_lat, cos_rad_lat, rad_lng):
-        return round(math.acos(self.cos_rad_lat
-                               * cos_rad_lat
-                               * math.cos(self.rad_lng - rad_lng)
-                               + self.sin_rad_lat
-                               * sin_rad_lat
-                               ) * 6371, 2)
-
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+
+def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_age=None, max_age=None):
+    print(latitude)
+    print(longitude)
+    print(radius)
+    query = User.query.filter(User.is_nearby_flat(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
+
+    if skill:
+        query = query.filter(User.skills.any(Skill.title == skill))
+
+    if gender:
+        query = query.filter(User.gender == gender)
+
+    if min_age and max_age:
+        query = query.filter(User.age_is_between(int(min_age), int(max_age)))
+
+    return query
+
+
+def get_distances_from_to(profiles, latitude, longitude, decimals=2):
+    sin_rad_lat = math.sin(math.pi * latitude / 180)
+    cos_rad_lat = math.cos(math.pi * latitude / 180)
+    rad_lng = math.pi * longitude / 180
+    return [round(math.acos(profile.cos_rad_lat
+                            * cos_rad_lat
+                            * math.cos(profile.rad_lng - rad_lng)
+                            + profile.sin_rad_lat
+                            * sin_rad_lat
+                            ) * 6371, decimals) for profile in profiles]
 
 
 class Application(db.Model):

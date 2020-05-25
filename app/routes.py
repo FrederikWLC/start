@@ -3,19 +3,19 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
-from app.models import User, Application, Message, Skill, sqlalchemy
+from app.models import User, Application, Message, Skill, sqlalchemy, get_explore_query, get_distances_from_to
 from app.funcs import geocode, get_image_from
 import json
 import folium
 import re
 import math
 from PIL import Image
-
+from datetime import datetime
 # ======== Routing =========================================================== #
 # -------- Login ------------------------------------------------------------- #
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         next_page = request.args.get("next")
@@ -38,7 +38,7 @@ def login():
     return render_template("login.html", title="Login")
 
 
-@app.route("/logout")
+@app.route("/logout/")
 @login_required
 def logout():
     logout_user()
@@ -47,7 +47,7 @@ def logout():
 
 
 # -------- Register Page ---------------------------------------------------------- #
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register/', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
@@ -89,7 +89,7 @@ def register():
 
 
 # -------- Settings Page ---------------------------------------------------------- #
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/settings/', methods=['GET', 'POST'])
 @login_required
 def settings():
     return "Vi arbejder på det, fuck af"
@@ -97,8 +97,8 @@ def settings():
 
 # -------- Home page ---------------------------------------------------------- #
 @app.route("/")
-@app.route("/main")
-@app.route('/home', methods=['GET', 'POST'])
+@app.route("/main/")
+@app.route('/home/', methods=['GET', 'POST'])
 @login_required
 def home():
     if not current_user.is_authenticated:
@@ -108,26 +108,33 @@ def home():
 # -------- Explore page ---------------------------------------------------------- #
 
 
-@app.route('/explore', methods=['GET', 'POST'])
-@login_required
+@app.route('/explore/', methods=['GET', 'POST'])
 def explore():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
+    print(request.args)
+    q_address = request.args.get('loc')
+    q_radius = request.args.get('rad')
+    q_skill = request.args.get('ski')
+    q_gender = request.args.get('gen')
+    q_min_age = request.args.get('min')
+    q_max_age = request.args.get('max')
 
     if request.method == 'POST':
 
-        location = request.form["location"]
-        skill = request.form["skill"]
-        radius = request.form["radius"]
+        address = request.form.get("location")
+        skill = request.form.get("skill")
+        radius = request.form.get("radius")
+        gender = request.form.get("gender")
+        min_age = request.form.get("min_age")
+        max_age = request.form.get("max_age")
 
         if not skill:
             skill = None
 
-        if not location or not radius:
+        if not address or not radius:
             print("All fields required")
             return json.dumps({'status': 'All fields required'})
 
-        location = geocode(location)
+        location = geocode(address)
         if not location:
             print("Non-valid location")
             return json.dumps({'status': 'Non-valid location'})
@@ -141,22 +148,41 @@ def explore():
         print(f"Successfully verified")
         print(f"Searching potential co-entrepreneur with radius {radius}, location {location} and skill {skill}")
 
-        current_user.set_previous_explore_args(location=location, radius=radius, skill=skill)
-        db.session.commit()
-        return json.dumps({'status': 'Successfully validated'})
+        url = f'/explore?loc={address}&rad={radius}'
 
-    if current_user.has_previous_explore_search:
-        profiles = current_user.get_explore_query().limit(5).all()
-        return render_template("explore.html", profiles=profiles, search=True)
-    else:
-        print("NO query")
-        return render_template("explore.html", profiles=None, search=False)
+        if skill:
+            url += f'&ski={skill}'
+        if gender:
+            url += f'&gen={gender}'
+        if min_age:
+            url += f'&min={min_age}'
+        if max_age:
+            url += f'&max={max_age}'
+
+        return json.dumps({'status': 'Successfully validated', 'url': url})
+
+    if not q_address or not q_radius:
+        return render_template("explore.html", search=False)
+
+    q_location = geocode(q_address)
+    if not q_location:
+        return render_template("explore.html", search=False)
+
+    try:
+        query = get_explore_query(latitude=q_location.latitude, longitude=q_location.longitude, radius=q_radius, skill=q_skill, gender=q_gender, min_age=q_min_age, max_age=q_max_age)
+
+    except ValueError:
+        abort(404)
+
+    profiles = query.limit(5).all()
+    distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
+    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip)
 
 
 # -------- Establish page ---------------------------------------------------------- #
 
 
-@app.route('/establish', methods=['GET', 'POST'])
+@app.route('/establish/', methods=['GET', 'POST'])
 @login_required
 def establish():
     applications = current_user.received_applications.filter_by(response=None).all()
@@ -284,12 +310,17 @@ def edit_profile():
         name = request.form["name"]
         bio = request.form["bio"]
         location = request.form["location"]
+
+        month = request.form["month"]
+        day = request.form["day"]
+        year = request.form["year"]
+
+        gender = request.form["gender"]
         skills = eval(request.form["skills"])
         if "image" in request.files:
             file = request.files["image"]
         else:
             file = None
-        print(file)
 
         if not name:
             print("All fields required")
@@ -298,6 +329,10 @@ def edit_profile():
         if not location:
             print("All fields required")
             return json.dumps({'status': 'Location must be filled in'})
+
+        if not month or not day or not year:
+            print("All fields required")
+            return json.dumps({'status': 'Birthday must be filled in'})
 
         location = geocode(location)
         if not location:
@@ -310,6 +345,8 @@ def edit_profile():
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
+        current_user.birthday = datetime(month=int(month), day=int(day), year=int(year))
+        current_user.gender = gender
 
         # Add skills that are not already there
         for skill in skills:
@@ -325,8 +362,13 @@ def edit_profile():
         print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
-    return render_template('edit_profile.html', \
-        available_skills=["Marketing", "Writing", "Photography", \
-        "Videography", "Photo editing", "Film editing", \
-        "Music producer", "Accountant", "Salesman", \
-        "(X) designer", "Lawyer", "Investor"])
+    return render_template('edit_profile.html',
+                           available_skills=["Marketing", "Writing", "Photography",
+                                             "Videography", "Photo editing", "Film editing",
+                                             "Music producer", "Accountant", "Salesman",
+                                             "(X) designer", "Lawyer", "Investor"])
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
