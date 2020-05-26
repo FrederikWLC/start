@@ -127,6 +127,13 @@ def explore():
         min_age = request.form.get("min_age")
         max_age = request.form.get("max_age")
 
+        print(address)
+        print(skill)
+        print(radius)
+        print(gender)
+        print(min_age)
+        print(max_age)
+
         if not skill:
             skill = None
 
@@ -162,11 +169,11 @@ def explore():
         return json.dumps({'status': 'Successfully validated', 'url': url})
 
     if not q_address or not q_radius:
-        return render_template("explore.html", search=False)
+        return render_template("explore.html", search=False, enumerate=enumerate)
 
     q_location = geocode(q_address)
     if not q_location:
-        return render_template("explore.html", search=False)
+        return render_template("explore.html", search=False, enumerate=enumerate)
 
     try:
         query = get_explore_query(latitude=q_location.latitude, longitude=q_location.longitude, radius=q_radius, skill=q_skill, gender=q_gender, min_age=q_min_age, max_age=q_max_age)
@@ -176,7 +183,7 @@ def explore():
 
     profiles = query.limit(5).all()
     distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
-    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip)
+    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, enumerate=enumerate)
 
 
 # -------- Establish page ---------------------------------------------------------- #
