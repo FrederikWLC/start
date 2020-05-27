@@ -2,7 +2,7 @@
 from flask import redirect, url_for, render_template, request, session, flash, abort
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-from app import app, db
+from app import app, db, available_skills
 from app.models import User, Application, Message, Skill, sqlalchemy, get_explore_query, get_distances_from_to
 from app.funcs import geocode, get_image_from
 import json
@@ -169,11 +169,11 @@ def explore():
         return json.dumps({'status': 'Successfully validated', 'url': url})
 
     if not q_address or not q_radius:
-        return render_template("explore.html", search=False, enumerate=enumerate)
+        return render_template("explore.html", search=False, enumerate=enumerate, available_skills=available_skills)
 
     q_location = geocode(q_address)
     if not q_location:
-        return render_template("explore.html", search=False, enumerate=enumerate)
+        return render_template("explore.html", search=False, enumerate=enumerate, available_skills=available_skills)
 
     try:
         query = get_explore_query(latitude=q_location.latitude, longitude=q_location.longitude, radius=q_radius, skill=q_skill, gender=q_gender, min_age=q_min_age, max_age=q_max_age)
@@ -183,7 +183,7 @@ def explore():
 
     profiles = query.limit(5).all()
     distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
-    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, enumerate=enumerate)
+    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, enumerate=enumerate, available_skills=available_skills)
 
 
 # -------- Establish page ---------------------------------------------------------- #
@@ -352,7 +352,7 @@ def edit_profile():
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
-        current_user.birthday = datetime(month=int(month), day=int(day), year=int(year))
+        current_user.set_birthday(datetime(month=int(month), day=int(day), year=int(year)))
         current_user.gender = gender
 
         # Add skills that are not already there
@@ -370,10 +370,7 @@ def edit_profile():
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html',
-                           available_skills=["Marketing", "Writing", "Photography",
-                                             "Videography", "Photo editing", "Film editing",
-                                             "Music producer", "Accountant", "Salesman",
-                                             "(X) designer", "Lawyer", "Investor"])
+                           available_skills=available_skills)
 
 
 @app.errorhandler(404)

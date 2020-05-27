@@ -1,8 +1,8 @@
 """Tables
 
-Revision ID: a99efd8f0700
+Revision ID: 303f8df56d56
 Revises: 
-Create Date: 2020-05-11 15:03:00.029106
+Create Date: 2020-05-27 18:58:18.717849
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a99efd8f0700'
+revision = '303f8df56d56'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,6 +21,9 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=120), nullable=True),
+    sa.Column('birthday', sa.DateTime(), nullable=True),
+    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('gender', sa.Integer(), nullable=True),
     sa.Column('location', sa.String(length=120), nullable=True),
     sa.Column('latitude', sa.Float(), nullable=True),
     sa.Column('longitude', sa.Float(), nullable=True),
@@ -30,15 +33,7 @@ def upgrade():
     sa.Column('username', sa.String(length=120), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
-    sa.Column('has_previous_explore_search', sa.Boolean(), nullable=True),
-    sa.Column('previous_explore_location', sa.String(length=120), nullable=True),
-    sa.Column('previous_explore_latitude', sa.Float(), nullable=True),
-    sa.Column('previous_explore_longitude', sa.Float(), nullable=True),
-    sa.Column('previous_explore_sin_rad_lat', sa.Float(), nullable=True),
-    sa.Column('previous_explore_cos_rad_lat', sa.Float(), nullable=True),
-    sa.Column('previous_explore_rad_lng', sa.Float(), nullable=True),
-    sa.Column('previous_explore_radius', sa.Float(), nullable=True),
-    sa.Column('previous_explore_skill', sa.String(length=20), nullable=True),
+    sa.Column('profile_pic_filename', sa.String(length=20), nullable=True),
     sa.Column('bio', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')

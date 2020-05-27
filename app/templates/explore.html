@@ -52,7 +52,7 @@
 
 <div class="select is-primary">
     <select id="skill">
-    <option selected>All</option>
+    <option value="" selected>All</option>
     <option>Male</option>
     <option>Female</option>
     <option>Other</option>
@@ -201,11 +201,19 @@
    var formData = new FormData();
    formData.append("location", $("#location").val());
    formData.append("radius", $("#radius").val());
-   formData.append("skill", {"All": '', {% for i, title in enumerate(available_skills) %} "{{title}}":"{{title}}" {% if i+1 != len(available_skills) %},{% endif %} {% endfor %}}[$("#skill").val()]);
-   formData.append("gender", {"All":'', "Male": 1, "Female": 2, "Other": 3}[$("#gender").val()]);
+
+   if ($("#skill").val()){
+    formData.append("skill", $("#skill").val());
+  }
+
+  if ($("#gender").val()) {
+   formData.append("gender", {"Male": 1, "Female": 2, "Other": 3}[$("#gender").val()]);
+ }
+
+  if ($( "#slider-range" ).slider( "values", 0 ) != 13 && $( "#slider-range" ).slider( "values", 1 ) != 120) {
    formData.append("min_age", $( "#slider-range" ).slider( "values", 0 ));
    formData.append("max_age", $( "#slider-range" ).slider( "values", 1 ));
-
+ }
     $.post({
       type: "POST",
       url: "/explore/",
@@ -218,9 +226,9 @@
         else{message(status, true, "explore-box");}
         
       }});
-  });
+ });
 
- $( function() {
+ $(function() {
     $( "#slider-range" ).slider({
       range: true,
       min: 13,

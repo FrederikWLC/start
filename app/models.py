@@ -26,6 +26,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120), index=True)
     birthday = db.Column(db.DateTime)
+    age = db.Column(db.Integer, default=0)
     gender = db.Column(db.Integer, default=0)
 
     location = db.Column(db.String(120))
@@ -128,13 +129,12 @@ class User(UserMixin, db.Model):
     def get_skill_titles(self):
         return [skill.title for skill in self.skills.all()]
 
-    @hybrid_property
-    def get_age(self):
-        return (datetime.now() - relativedelta(years=self.birthday.year, months=self.birthday.month, days=self.birthday.day)).year
+    def set_birthday(self, date):
+        self.birthday = date
+        self.age = relativedelta(dt1=datetime.now(), dt2=date).years
 
-    @hybrid_method
-    def age_is_between(self, min_age, max_age):
-        return min_age < self.get_age() > max_age
+    def update_age(self):
+        self.age = relativedelta(dt1=datetime.now(), dt2=self.birthday).years
 
     def clear_explore_query(self):
         self.has_previous_explore_search = False
@@ -208,7 +208,7 @@ def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_
         query = query.filter(User.gender == gender)
 
     if min_age and max_age:
-        query = query.filter(User.age_is_between(int(min_age), int(max_age)))
+        query = query.filter(int(min_age) <= User.age, User.age <= int(min_age))
 
     return query
 
