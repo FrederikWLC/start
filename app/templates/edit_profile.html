@@ -92,10 +92,10 @@
       <div>
       <div class='select'> 
         <select id="gender"> 
-          <option value='0' selected>Unknown</option>
-          <option value='1' {% if current_user.gender == 1 %} selected {% endif %}>Male</option>
-          <option value='2' {% if current_user.gender == 2 %} selected {% endif %}>Female</option>
-          <option value='3' {% if current_user.gender == 3 %} selected {% endif %}>Other</option>
+          <option selected>Unknown</option>
+          <option {% if current_user.gender == "Male" %} selected {% endif %}>Male</option>
+          <option {% if current_user.gender == "Female" %} selected {% endif %}>Female</option>
+          <option {% if current_user.gender == "Other" %} selected {% endif %}>Other</option>
       </select>
     </div>
   </div>
@@ -342,7 +342,8 @@ $(document).on('change','#selected-skill',function(){
   $('#add-a-skill').removeClass("vanish");
   $("#skills").append("<div class='skill'><button class='button is-info is-normal is-'><span class='skill-title'>"+$('#selected-skill').val()+"</span><span class='icon remove-skill'><a class='delete'></a></span></button></div>");
   $('#selected-skill option:selected').remove();
-  if ($('#selected-skill').length == 1) {
+  console.log($('#selected-skill').children().length)
+  if ($('#selected-skill').children().length == 1) {
     $('#add-a-skill').addClass("vanish");
   }
  });

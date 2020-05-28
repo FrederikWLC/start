@@ -51,7 +51,7 @@
     </div>
 
 <div class="select is-primary">
-    <select id="skill">
+    <select id="gender">
     <option value="" selected>All</option>
     <option>Male</option>
     <option>Female</option>
@@ -81,7 +81,6 @@
             </div>
             {% if search and profiles %}
             {% for profile, distance in zip(profiles, distances) %}
-
               <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
             <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic(75) }}"></div>
             <div class="column" id="middleBox">
@@ -207,7 +206,7 @@
   }
 
   if ($("#gender").val()) {
-   formData.append("gender", {"Male": 1, "Female": 2, "Other": 3}[$("#gender").val()]);
+   formData.append("gender", $("#gender").val());
  }
 
   if ($( "#slider-range" ).slider( "values", 0 ) != 13 && $( "#slider-range" ).slider( "values", 1 ) != 120) {

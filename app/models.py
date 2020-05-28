@@ -27,7 +27,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(120), index=True)
     birthday = db.Column(db.DateTime)
     age = db.Column(db.Integer, default=0)
-    gender = db.Column(db.Integer, default=0)
+    gender = db.Column(db.String, default="Unknown")
 
     location = db.Column(db.String(120))
     latitude = db.Column(db.Float)
@@ -196,16 +196,13 @@ class User(UserMixin, db.Model):
 
 
 def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_age=None, max_age=None):
-    print(latitude)
-    print(longitude)
-    print(radius)
     query = User.query.filter(User.is_nearby_flat(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
 
     if skill:
         query = query.filter(User.skills.any(Skill.title == skill))
 
     if gender:
-        query = query.filter(User.gender == gender)
+        query = query.filter_by(gender=gender)
 
     if min_age and max_age:
         query = query.filter(int(min_age) <= User.age, User.age <= int(min_age))
