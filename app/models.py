@@ -205,7 +205,7 @@ def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_
         query = query.filter_by(gender=gender)
 
     if min_age and max_age:
-        query = query.filter(int(min_age) <= User.age, User.age <= int(min_age))
+        query = query.filter(int(min_age) <= User.age).filter(User.age <= int(min_age))
 
     return query
 
