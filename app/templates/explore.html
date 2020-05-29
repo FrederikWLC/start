@@ -14,7 +14,7 @@
 
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="location" class="input is-success" type="location" placeholder="Location" value="{{address}}">
+                  <input id="location" class="input is-success" type="location" placeholder="Location" {% if address %} value="{{address}}" {% endif %}>
                   <span class="icon is-small is-left">
                     <i class="fa fa-globe"></i>
                   </span>
@@ -26,7 +26,7 @@
 
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="radius" class="input " type="int" placeholder="Radius (km)" value="{{radius}}">
+                  <input id="radius" class="input " type="int" placeholder="Radius (km)" {% if radius %} value="{{radius}}" {% endif %}>
                   <span class="icon is-small is-left">
                     <i class="fa fa-wifi"></i>
                   </span>
