@@ -118,6 +118,8 @@ def explore():
     q_min_age = request.args.get('min')
     q_max_age = request.args.get('max')
 
+    q_strings = {"address": q_address, "radius": q_radius, "skill": q_skill, "gender": q_gender, "min_age": q_min_age, "max_age": q_max_age}
+
     if request.method == 'POST':
 
         address = request.form.get("location")
@@ -160,18 +162,19 @@ def explore():
         if gender:
             if {"Male": "Male", "Female": "Female", "Other": "Other"}.get(gender):
                 url += f'&gen={gender}'
-        if min_age and max_age:
+        if min_age:
             url += f'&min={min_age}'
+        if max_age:
             url += f'&max={max_age}'
 
         return json.dumps({'status': 'Successfully validated', 'url': url})
 
     if not q_address or not q_radius:
-        return render_template("explore.html", search=False, available_skills=available_skills)
+        return render_template("explore.html", search=False, available_skills=available_skills, **q_strings)
 
     q_location = geocode(q_address)
     if not q_location:
-        return render_template("explore.html", search=False, available_skills=available_skills)
+        return render_template("explore.html", search=False, available_skills=available_skills, **q_strings)
 
     try:
         print(q_address)
@@ -188,7 +191,7 @@ def explore():
     profiles = query.limit(5).all()
     print(profiles)
     distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
-    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, available_skills=available_skills)
+    return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, available_skills=available_skills, **q_strings)
 
 
 # -------- Establish page ---------------------------------------------------------- #

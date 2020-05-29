@@ -14,7 +14,7 @@
 
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="location" class="input is-success" type="location" placeholder="Location">
+                  <input id="location" class="input is-success" type="location" placeholder="Location" value="{{address}}">
                   <span class="icon is-small is-left">
                     <i class="fa fa-globe"></i>
                   </span>
@@ -26,7 +26,7 @@
 
               <div class="field">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="radius" class="input " type="int" placeholder="Radius (km)">
+                  <input id="radius" class="input " type="int" placeholder="Radius (km)" value="{{radius}}">
                   <span class="icon is-small is-left">
                     <i class="fa fa-wifi"></i>
                   </span>
@@ -41,7 +41,7 @@
     <select id="skill">
     <option value="" selected>All</option>
     {% for title in available_skills %}
-    <option>{{title}}</option>
+    <option {% if title == skill %} selected {% endif %}>{{title}}</option>
     {% endfor %}
     </select>
     
@@ -53,9 +53,9 @@
 <div class="select is-primary">
     <select id="gender">
     <option value="" selected>All</option>
-    <option>Male</option>
-    <option>Female</option>
-    <option>Other</option>
+    <option {% if gender == "Male" %} selected {% endif %}>Male</option>
+    <option {% if gender == "Female" %} selected {% endif %}>Female</option>
+    <option {% if gender == "Other" %} selected {% endif %}>Other</option>
     </select>
     
     <div class="icon is-small is-left">
@@ -81,7 +81,7 @@
             </div>
             {% if search and profiles %}
             {% for profile, distance in zip(profiles, distances) %}
-              <div valign="top" class="row" id="bigBox" onclick="window.location='profile/{{profile.username}}/';">
+              <div valign="top" class="row" id="bigBox" onclick="window.location='/profile/{{profile.username}}/';">
             <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic(75) }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
@@ -98,7 +98,7 @@
             {% endif %}
             {% if search and not profiles %}
             <div>
-              Couldn't find any profiles nearby..
+              Couldn't find any profiles nearby with requirements..
             </div>
             {% endif %}
             </div>
@@ -209,8 +209,10 @@
    formData.append("gender", $("#gender").val());
  }
 
-  if ($( "#slider-range" ).slider( "values", 0 ) != 13 || $( "#slider-range" ).slider( "values", 1 ) != 120) {
+  if ($( "#slider-range" ).slider( "values", 0 ) != 13) {
    formData.append("min_age", $( "#slider-range" ).slider( "values", 0 ));
+ }
+ if ($( "#slider-range" ).slider( "values", 1 ) != 120) {
    formData.append("max_age", $( "#slider-range" ).slider( "values", 1 ));
  }
     $.post({
@@ -232,7 +234,8 @@
       range: true,
       min: 13,
       max: 120,
-      values: [ 13, 120 ],
+      values: [{% if min_age %}{{ min_age }}{% else %} 13 {% endif %}, {% if max_age %}{{ max_age }}{% else %} 120 {% endif %}]
+      ,
       slide: function( event, ui ) {
         $( "#amount" ).text( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
       }
