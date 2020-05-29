@@ -11,7 +11,7 @@ function message(status, shake=false, id="") {
    console.log("REGISTER");
     $.post({
       type: "POST",
-      url: "/register",
+      url: "/register/",
       data: {"name": $("#register-name").val(),
              "location": $("#register-location").val(),
              "username": $("#register-username").val(),
@@ -30,7 +30,7 @@ function message(status, shake=false, id="") {
       console.log("LOGIN");
     $.post({
       type: "POST",
-      url: "/login",
+      url: "/login/",
       data: {"username": $("#login-username").val(), 
              "password": $("#login-pass").val()},
       success(response) {
