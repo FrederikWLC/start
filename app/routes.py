@@ -11,6 +11,7 @@ import re
 import math
 from PIL import Image
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 # ======== Routing =========================================================== #
 # -------- Login ------------------------------------------------------------- #
 
@@ -349,6 +350,9 @@ def edit_profile():
             print("All fields required")
             return json.dumps({'status': 'Birthday must be filled in'})
 
+        if not relativedelta(dt1=datetime.now(), dt2=datetime(year=int(year), month=int(month), day=int(day))).years >= 13:
+            return json.dumps({'status': 'You must be over the age of 13'})
+
         location = geocode(location)
         if not location:
             print("Non-valid location")
@@ -381,6 +385,6 @@ def edit_profile():
                            available_skills=available_skills)
 
 
-@app.errorhandler(404)
+@ app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
