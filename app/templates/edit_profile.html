@@ -41,15 +41,31 @@
   </div>
   <br>
   <div>
+    <div id="name">
       <h1><b>Name</b></h1>
-      <textarea class="textarea has-fixed-size" placeholder="Add your name" id="name-field" rows="1">{{current_user.name}}</textarea> 
-      <br>
+      <textarea class="textarea has-fixed-size" placeholder="Add your name" id="name-field" rows="1">{{current_user.name}}</textarea>
+    </div>
+      <div id="feedback-name" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="name-anchor">
+    <div id="bio">
       <h1><b>Bio</b></h1>
       <textarea class="textarea has-fixed-size" placeholder="Add your bio" id="bio-field" rows="3">{% if current_user.bio %}{{ current_user.bio }}{% endif %}</textarea>
-      <br>
+    </div>
+      <div id="feedback-bio" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="bio-anchor">
+    <div id="location">
       <h1><b>Location</b></h1>
       <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="2">{{ current_user.location }}</textarea>
-      <br>
+    </div>
+      <div id="feedback-location" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="location-anchor">
+    <div id="birthday">
       <h1><b>Birthday</b></h1>
       <div>
       <div  class='select'> 
@@ -86,7 +102,11 @@
         </select>
       </div>
       <div>
-      <br>
+  </div>
+      <div id="feedback-birthday" class="feedback" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="birthday-anchor">
 
       <h1><b>Gender</b></h1>
       <div>
@@ -129,9 +149,6 @@
   </div>
 
   <br>
-
-  <div id="feedback">
-  </div>
 
 </div>
 {% endblock %}
@@ -264,15 +281,35 @@ select option[disabled] {
   margin-top: 5px;
   display: inline-block;
 }
+
+.feedback {
+  width: 100%;
+  height: 25px;
+  padding: 0;
+  margin: 0 auto;
+  color: red;
+}
+
+.feedback.message {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0 auto;
+}
+
 </style>
 <script src="/static/js/navbar.js"></script>
 <script>
-  function message(status, shake=false, id="") {
+  function message(status, box_id, shake=false) {
+  
+document.getElementById(box_id+"-anchor").scrollIntoView(false);
+
   if (shake) {
-    $("#"+id).effect("shake", {direction: "right", times: 2, distance: 8}, 250);
-  } 
-  document.getElementById("feedback").innerHTML = status;
-  $("#feedback").show().delay(2000).fadeOut();
+    $("#"+box_id).effect("shake", {direction: "right", times: 2, distance: 8}, 350);
+  }
+  $("#feedback-"+box_id).animate({ opacity: 1 })
+  $('#feedback-'+box_id).text(status);
+  $("#feedback-"+box_id).delay(2000).animate({ opacity: 0 })
 }
 
  $(document).on("click", "#save-button", function() {
@@ -317,9 +354,10 @@ select option[disabled] {
       processData: false,
       contentType: false,
       success(response) {
-        var status = JSON.parse(response)["status"];
+        var response = JSON.parse(response);
+        var status = response["status"];
         if (status === "Successfully saved") { location.replace("/profile/"); }
-        else{message(status, true, "feedback");}
+        else{message(status, response["box_id"], true);}
         
       }});
   });

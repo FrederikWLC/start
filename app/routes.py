@@ -340,23 +340,23 @@ def edit_profile():
 
         if not name:
             print("All fields required")
-            return json.dumps({'status': 'Name must be filled in'})
+            return json.dumps({'status': 'Name must be filled in', 'box_id': 'name'})
 
         if not location:
             print("All fields required")
-            return json.dumps({'status': 'Location must be filled in'})
+            return json.dumps({'status': 'Location must be filled in', 'box_id': 'location'})
 
         if not month or not day or not year:
             print("All fields required")
-            return json.dumps({'status': 'Birthday must be filled in'})
+            return json.dumps({'status': 'Birthday must be filled in', 'box_id': 'birthday'})
 
         if not relativedelta(dt1=datetime.now(), dt2=datetime(year=int(year), month=int(month), day=int(day))).years >= 13:
-            return json.dumps({'status': 'You must be over the age of 13'})
+            return json.dumps({'status': 'You must be over the age of 13', 'box_id': 'birthday'})
 
         location = geocode(location)
         if not location:
             print("Non-valid location")
-            return json.dumps({'status': 'Non-valid location'})
+            return json.dumps({'status': 'Non-valid location', 'box_id': 'location'})
 
         if file:
             image = Image.open(file)
