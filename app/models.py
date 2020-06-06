@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import glob
 from datetime import datetime
-from app import app, db, login, geolocator, sqlalchemy, hybrid_method, hybrid_property
+from app import app, db, login, geolocator, sqlalchemy, hybrid_method, hybrid_property, func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask import url_for
@@ -41,7 +41,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(128))
 
-    profile_pic_filename = db.Column(db.String(20))
+    profile_pic_filename = db.Column(db.String(25))
 
     def has_profile_pic(self):
         profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
@@ -188,15 +188,23 @@ class User(UserMixin, db.Model):
             return location
 
     @hybrid_method
-    def is_nearby_flat(self, latitude, longitude, radius):
-        return (self.latitude - latitude) * (self.latitude - latitude) * 111 + (self.longitude - longitude) * (self.longitude - longitude) * 111 <= radius * radius
+    def is_nearby(self, latitude, longitude, radius):
+        sin_rad_lat = math.sin(math.pi * latitude / 180)
+        cos_rad_lat = math.cos(math.pi * latitude / 180)
+        rad_lng = math.pi * longitude / 180
+        return func.acos(self.cos_rad_lat
+                         * cos_rad_lat
+                         * func.cos(self.rad_lng - rad_lng)
+                         + self.sin_rad_lat
+                         * sin_rad_lat
+                         ) * 6371 <= radius
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
 
 def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_age=None, max_age=None):
-    query = User.query.filter(User.is_nearby_flat(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
+    query = User.query.filter(User.is_nearby(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
 
     if skill:
         query = query.filter(User.skills.any(Skill.title == skill))
