@@ -67,7 +67,7 @@
       <br id="location-anchor">
     <div id="birthday">
       <h1><b>Birthday</b></h1>
-      {% include "birthdaypicker.html" %}
+      {% include "datepicker.html" %}
     </div>
       <div id="feedback-birthday" class="feedback" class="feedback">
         <div class="message"></div>
@@ -262,10 +262,10 @@ select option[disabled] {
 }
 
 </style>
-<script src="/static/js/birthdaypicker.js"></script>
+<script src="/static/js/datepicker.js"></script>
 <script>
   function message(status, box_id, shake=false) {
-  
+  $("#feedback-"+box_id).stop(stopAll=true);
 document.getElementById(box_id+"-anchor").scrollIntoView(false);
 
   if (shake) {
@@ -289,21 +289,15 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 
    formData.append("location", $("#location-field").val());
 
-   if ($("#month").val() === null) {
-    formData.append("month", '');
-   } else {
+   if ($("#month").val()) {
     formData.append("month", $("#month").val());
   }
    
-   if ($("#day").val() === null) {
-    formData.append("day", '');
-   } else {
+   if ($("#day").val()) {
     formData.append("day", $("#day").val());
   }
 
-  if ($("#year").val() === null) {
-    formData.append("year", '');
-   } else {
+  if ($("#year").val()) {
     formData.append("year", $("#year").val());
   }
 

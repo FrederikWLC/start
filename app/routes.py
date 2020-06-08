@@ -24,15 +24,18 @@ def login():
             next_page = url_for("home")
         return redirect(next_page)
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if not username or not password:
-            print("Both fields required")
-            return json.dumps({'status': 'Both fields required'})
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username:
+            return json.dumps({'status': 'Username must be filled in', 'box_ids': ['username']})
+
+        if not password:
+            return json.dumps({'status': 'Password must be filled in', 'box_ids': ['password']})
+
         user = User.query.filter_by(username=username).first()
         if user is None or not user.check_password(password):
-            print("Invalid username or password")
-            return json.dumps({'status': 'Invalid username or password'})
+            return json.dumps({'status': 'Incorrect username or password', 'box_ids': ['username', 'password']})
         login_user(user, remember=True)
         print("Successfully logged in")
         return json.dumps({'status': 'Successfully logged in'})
@@ -53,37 +56,56 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
     if request.method == 'POST':
-        print("OPRET BRUGER")
-        name = request.form['name']
-        location = request.form["location"]
-        username = request.form["username"]
-        email = request.form["email"]
-        password = request.form['password']
+        name = request.form.get('name')
+        location = request.form.get("location")
 
-        if not name or not location or not username or not email or not password:
-            print("All fields required")
-            return json.dumps({'status': 'All fields required'})
+        month = request.form.get('month')
+        day = request.form.get('day')
+        year = request.form.get('year')
+
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get('password')
+
+        if not name:
+            return json.dumps({'status': 'Name must be filled in', 'box_ids': ['name']})
+
+        if not location:
+            return json.dumps({'status': 'Location must be filled in', 'box_ids': ['location']})
+
+        if not month or not day or not year:
+            return json.dumps({'status': 'Birthday must be filled in', 'box_ids': ['birthday']})
+
+        if not username:
+            return json.dumps({'status': 'Username must be filled in', 'box_ids': ['username']})
+
+        if not email:
+            return json.dumps({'status': 'Email must be filled in', 'box_ids': ['email']})
+
+        if not password:
+            return json.dumps({'status': 'Password must be filled in', 'box_ids': ['password']})
+
+        if not relativedelta(dt1=datetime.now(), dt2=datetime(year=int(year), month=int(month), day=int(day))).years >= 13:
+            return json.dumps({'status': 'You must be over the age of 13', 'box_ids': ['birthday']})
 
         if not User.query.filter_by(username=username).first() is None:
-            print("Username taken")
-            return json.dumps({'status': 'Username taken'})
+            return json.dumps({'status': 'Username taken', 'box_ids': ['username']})
 
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            print("Invalid email")
-            return json.dumps({'status': 'Invalid email'})
+            print(email)
+            return json.dumps({'status': 'Invalid email', 'box_ids': ['email']})
 
         location = geocode(location)
         if not location:
-            print("Non-valid location")
-            return json.dumps({'status': 'Non-valid location'})
+            return json.dumps({'status': 'Non-valid location', 'box_ids': ['location']})
 
         user = User(name=name, username=username, email=email)
         user.set_location(location, prelocated=True)
+        user.set_birthday(datetime(month=int(month), day=int(day), year=int(year)))
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         login_user(user, remember=True)
-        print("Successfully registered")
         return json.dumps({'status': 'Successfully registered'})
 
     return render_template("register.html", title="Register")
@@ -91,7 +113,6 @@ def register():
 
 # -------- Settings Page ---------------------------------------------------------- #
 @app.route('/settings/', methods=['GET', 'POST'])
-@login_required
 def settings():
     return "Vi arbejder på det, fuck af"
 
@@ -210,25 +231,32 @@ def establish():
 # -------- User page ---------------------------------------------------------- #
 @app.route("/profile/")
 @app.route("/profile/<username>/", methods=["GET", "POST"])
-@login_required
 def profile(username=None):
+    if not current_user.is_authenticated and not username:
+        return redirect(url_for('login'))
+
     if username:
         profile = User.query.filter_by(username=username).first_or_404()
     else:
         profile = current_user
+
     return render_template('profile.html', profile=profile)
 
-# -------- User page ---------------------------------------------------------- #
+    # -------- User page ---------------------------------------------------------- #
 
 
 @app.route("/relations/")
 @app.route("/profile/<username>/relations/", methods=["GET", "POST"])
-@login_required
 def relations(username=None):
+
+    if not current_user.is_authenticated and not username:
+        return redirect(url_for('login'))
+
     if username:
         profile = User.query.filter_by(username=username).first_or_404()
     else:
         profile = current_user
+
     relations = profile.get_relations()
     return render_template('relations.html', relations=relations, profile=profile)
 
@@ -247,9 +275,9 @@ def connect(username):
     if request.method == 'POST':
         print("POST")
 
-        title = request.form["title"]
+        title = request.form.get("title")
 
-        content = request.form["content"]
+        content = request.form.get("content")
 
         if not title or not content:
             print("All fields required")
@@ -302,19 +330,26 @@ def messages(username):
     if not current_user.is_related_to(profile):
         return redirect(url_for("profile", username=username))
 
+    messages = current_user.get_messages_with(profile).all()
+
     if request.method == 'POST':
-        print("POST")
-        content = request.form["content"]
-        print(f"content: {content}")
+
+        if request.form.get("errand") == "updates":
+            if messages != current_user.get_messages_with(profile).all():
+                new_messages = dict.fromkeys(x for x in dict.fromkeys(current_user.get_messages_with(profile).all()).keys() if x not in dict.fromkeys(messages).keys()).keys()
+                messages = current_user.get_messages_with(profile).all()
+                return json.dumps({'messages': [msg.content for msg in new_messages]})
+            return json.dumps({'messages': []})
+
+        content = request.form.get("content")
         if not content:
             print("Text-field required")
             return json.dumps({'status': 'Text-field required'})
         message = Message(content=content, sender=current_user, recipient=profile)
         db.session.add(message)
         db.session.commit()
-        return json.dumps({'status': 'Successfully sent'})
+        return json.dumps({'status': 'Successfully sent', 'message': content})
 
-    messages = current_user.get_messages_with(profile).all()
     return render_template('messages.html', profile=profile, messages=messages)
 
 
@@ -323,20 +358,18 @@ def messages(username):
 def edit_profile():
     if request.method == 'POST':
         print("POST")
-        name = request.form["name"]
-        bio = request.form["bio"]
-        location = request.form["location"]
+        name = request.form.get("name")
+        bio = request.form.get("bio")
+        location = request.form.get("location")
 
-        month = request.form["month"]
-        day = request.form["day"]
-        year = request.form["year"]
+        month = request.form.get("month")
+        day = request.form.get("day")
+        year = request.form.get("year")
 
-        gender = request.form["gender"]
-        skills = eval(request.form["skills"])
-        if "image" in request.files:
-            file = request.files["image"]
-        else:
-            file = None
+        gender = request.form.get("gender")
+        skills = eval(request.form.get("skills"))
+
+        file = request.files.get("image")
 
         if not name:
             print("All fields required")
@@ -382,9 +415,10 @@ def edit_profile():
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html',
-                           available_skills=available_skills)
+                           available_skills=available_skills, selected_month=current_user.birthday.month, selected_day=current_user.birthday.month, selected_year=current_user.birthday.year)
 
 
-@ app.errorhandler(404)
+@app.errorhandler(404)
+@app.route("/404/<e>/")
 def page_not_found(e):
     return render_template('404.html'), 404

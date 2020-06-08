@@ -18,6 +18,6 @@ geolocator = Nominatim(user_agent="myGeocoder")
 available_skills = ["Marketing", "Writing", "Photography",
                     "Videography", "Photo editing", "Film editing",
                     "Music producer", "Accountant", "Salesman",
-                    "(X) designer", "Lawyer", "Investor", "Software"]
+                    "(X) designer", "Lawyer", "Investor", "Software", "Acting"]
 
 from app import routes, models

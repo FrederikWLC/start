@@ -1,0 +1,35 @@
+<div>
+      <div  class='select'>
+        <select id="month"> 
+          <option value='' disabled hidden selected>Month</option> 
+          <option value='1' {% if selected_month == 1 %} selected {% endif %}>January</option>
+          <option value='2' {% if selected_month == 2 %} selected {% endif %}>February</option> 
+          <option value='3' {% if selected_month == 3 %} selected {% endif %}>March</option> 
+          <option value='4' {% if selected_month == 4 %} selected {% endif %}>April</option> 
+          <option value='5' {% if selected_month == 5 %} selected {% endif %}>May</option> 
+          <option value='6' {% if selected_month == 6 %} selected {% endif %}>June</option> 
+          <option value='7' {% if selected_month == 7 %} selected {% endif %}>July</option> 
+          <option value='8' {% if selected_month == 8 %} selected {% endif %}>August</option> 
+          <option value='9' {% if selected_month == 9 %} selected {% endif %}>September</option> 
+          <option value='10' {% if selected_month == 10 %} selected {% endif %}>October</option> 
+          <option value='11' {% if selected_month == 11 %} selected {% endif %}>November</option> 
+          <option value='12' {% if selected_month == 12 %} selected {% endif %}>December</option> 
+        </select>
+      </div>
+      <div  class='select'> 
+        <select id="day"> 
+          <option value='' disabled hidden selected>Day</option> 
+          {% for i in range(1,32) %}
+          <option value='{{i}}' {% if selected_day == i %} selected {% endif %}>{{i}}</option> 
+          {% endfor %}
+        </select>
+      </div>
+      <div  class='select'> 
+        <select id="year"> 
+          <option value='' disabled hidden selected>Year</option> 
+          {% for i in range(2020,1899,-1) %}
+          <option value='{{i}}' {% if i % 4 == 0 and (i % 100 != 0 or i % 400 == 0) %} data-leapyear="1" {% else %} data-leapyear="0" {% endif %} {% if selected_year == i %} selected {% endif %}>{{i}}</option> 
+          {% endfor %}
+        </select>
+      </div>
+  </div>
