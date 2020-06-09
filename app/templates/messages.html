@@ -8,7 +8,7 @@
             {% if messages %}
             {% for message in messages %}
               <div class="message-container {% if message.sender == current_user %} sender_is_current_user {% else %} sender_is_profile {% endif %}">
-                <div class="profile_pic"><img src="{{ message.sender.get_profile_pic(50) }}"></div>
+                <div class="profile_pic"><img src="{{ message.sender.get_profile_pic() }}" class="image"></div>
                 <div class="message">
                 <textarea class="textarea has-fixed-size" readonly>{{message.content}}</textarea>
               </div>
@@ -38,6 +38,8 @@
 #chat {
   overflow: auto;
   height: 500px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .message-container {
@@ -59,9 +61,12 @@
   height:50px;
   width: 50px;
   padding: 0px;
-  flex-grow: 1;
   margin-right: 5px;
   background-color: white;
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 50px;
+  max-height: 50px;
 }
 
 #message-field {
@@ -73,6 +78,7 @@
 }
 
 #send {
+  margin-right: 10px;
   float:right;
   height:46px;
   width: 70px;
@@ -86,6 +92,7 @@
 }
 
 #field {
+  margin-left: 10px;
   float:left;
   height:46px;
   width: 83%;
@@ -98,12 +105,17 @@
   width: 100%;
 }
 
+.image {
+  width: 100%;
+  height: 100%;
+}
+
 .sender_is_current_user {
-  float:left;
+  float:right;
 }
 
 .sender_is_profile {
-  float:right;
+  float:left;
 }
 
 
@@ -125,7 +137,7 @@ setInterval(function() {
     success(response) {
         var response = JSON.parse(response);
         var messages = response["messages"];
-        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic(50) }}'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+message+"</textarea></div></div>");});
+        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+message+"</textarea></div></div>");});
       }});
   },1000);
 
@@ -140,7 +152,7 @@ setInterval(function() {
         var status = response["status"];
         if (status === "Successfully sent") {
           $("#text-field").val("");
-          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic(50) }}'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+response["message"]+"</textarea></div></div>");
+          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+response["message"]+"</textarea></div></div>");
             updateScroll();}
       }});
   });

@@ -30,7 +30,7 @@
 
   <div id="profile_pic">
       <div id="image-wrapper" class="back-element">
-      <img id="image" src="{{ current_user.get_profile_pic(256) }}">
+      <img id="image" src="{{ current_user.get_profile_pic() }}">
       </div>
       <input type="file"  accept="image/*" name="image" id="upload" onchange="loadFile(event)" style="display: none;">
       <button class="button is-success is-large is-inverted front-element" id="upload-button">

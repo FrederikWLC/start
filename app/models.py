@@ -63,7 +63,7 @@ class User(UserMixin, db.Model):
         Path(profile_pic_folder).mkdir(parents=True, exist_ok=True)
         image.save(profile_pic_path)
 
-    def get_profile_pic(self, size):
+    def get_profile_pic(self):
         if self.has_profile_pic():
             profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
             print(self.profile_pic_filename)
@@ -73,7 +73,7 @@ class User(UserMixin, db.Model):
 
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
-            digest, size)
+            digest, 256)
 
     befriended = db.relationship(
         'User', secondary=befriends,

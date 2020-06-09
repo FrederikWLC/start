@@ -343,7 +343,6 @@ def messages(username):
 
         content = request.form.get("content")
         if not content:
-            print("Text-field required")
             return json.dumps({'status': 'Text-field required'})
         message = Message(content=content, sender=current_user, recipient=profile)
         db.session.add(message)
@@ -393,7 +392,9 @@ def edit_profile():
 
         if file:
             image = Image.open(file)
-            current_user.save_profile_pic(image)
+            new_image = image.resize((256, 256), Image.ANTIALIAS)
+            new_image.format = image.format
+            current_user.save_profile_pic(new_image)
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
