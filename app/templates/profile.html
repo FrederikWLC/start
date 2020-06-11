@@ -10,7 +10,7 @@
         <div valign="top" class="row" id="bigBox">
             <div  width="256px" class="column" id="leftBox">
               <div id="profile_pic">
-              <img id="image" src="{{ profile.get_profile_pic(256) }}"></div>
+              <img id="image" src="{{ profile.get_profile_pic() }}"></div>
               </div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
@@ -24,6 +24,7 @@
 
             </div>
             <div class="column" id="rightBox">
+              {% if current_user.is_authenticated %}
               <div class="spacy row">
               {% if profile == current_user %}
               <a class="button is-link is-normal is-outlined" id="edit-button" href="/settings/profile/">Edit Profile</a>
@@ -35,6 +36,7 @@
               <a class="button is-info is-normal thicc">Connected</a>
               {% endif %}
             </div>
+            {% endif %}
             <div class="spacy row">
               <a id="relations"{% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %} class="button is-primary is-normal is-outlined thicc">Relations</a>
             </div>
@@ -44,7 +46,7 @@
 
         <div id="skillBox" class="row has-text-centered">
           <h3 class="title is-4" id="skill-title" style="color:black"><b>Skills</b></h3>
-          {% for skill in current_user.skills %}
+          {% for skill in profile.skills %}
           <div class='skill'>
           <button class='button is-info is-normal is-'>
             <span>{{ skill.title }}</span>

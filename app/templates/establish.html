@@ -10,24 +10,23 @@
               <br>
             {% if applications %}
             {% for application in applications %}
-              <div valign="top" class="row" id="bigBox" onclick="window.location='establish/application/{{application.sender.username}}/';">
+            <div valign="top" class="row" id="bigBox" onclick="window.location='/establish/application/{{application.sender.username}}/';">
             
-            <div class="column" id="leftBox"><img src="{{ application.sender.profile_pic(75) }}"></div>
-            <div id="image" class="column" id="middleBox">
+           	 <div class="column" id="leftBox"><img src="{{ application.sender.get_profile_pic() }}" id="img"></div>
+            <div class="column" id="middleBox">
               <h1 style="color:black"><b>   
               {{ application.sender.name }}</b></h1>
               
-          </div>
+          		</div>
             <div class="column" id="rightBox">
               <h1 style="color:black"><b>   
               {{ shorten(application.title) }}</b></h1>
             </div>
-            <hr>
         </div>
-              {% endfor %}
+         {% endfor %}
         	
-            {% else %}
-            <div>
+          {% else %}
+           <div>
               No relations to be established yet..
             </div>
             {% endif %}

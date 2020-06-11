@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 {% block body %}
-
+{% include "navbar.html" %}
       <div class="container has-text-centered">
         <p class="title">Messages: <b>{{profile.name}}</b></p>
         <br>
+        <div id="chat">
             {% if messages %}
             {% for message in messages %}
-              <div class="message-container" {% if message.sender == current_user %} id="sender_is_current_user" {% else %} id="sender_is_profile" {% endif %}>
-                <div id="profile_pic"><img src="{{ message.sender.profile_pic(50) }}"></div>
-                <div class="message">
-                <textarea class="textarea has-fixed-size" placeholder="Type a message..."  id="text" readonly>{{message.content}}</textarea>
+              <div class="message-container {% if message.sender == current_user %} sender_is_current_user {% else %} sender_is_profile {% endif %}">
+                <div class="profile_pic"><img src="{{ message.sender.get_profile_pic() }}" class="image"></div>
+                <div class="message-box">
+                <textarea class="textarea has-fixed-size message" readonly>{{message.content}}</textarea>
               </div>
               </div>
         {% endfor %}
         {% endif %}
+      </div>
         <div class="control" id="message-field">
         <div id="field">
   <textarea class="textarea has-fixed-size" placeholder="Type a message..." id="text-field" rows="1"></textarea> 
@@ -29,11 +31,16 @@
 </div>
 </div>
 </div>
-
-{% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
 <style>
+
+#chat {
+  overflow: auto;
+  height: 500px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
 .message-container {
   margin: auto;
@@ -44,19 +51,22 @@
   clear: both;
 }
 
-.message {
+.message-box {
   float:right;
   flex-grow: 1;
   width: 90%;
 }
 
-#profile_pic {
+.profile_pic {
   height:50px;
   width: 50px;
   padding: 0px;
-  flex-grow: 1;
   margin-right: 5px;
   background-color: white;
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 50px;
+  max-height: 50px;
 }
 
 #message-field {
@@ -67,15 +77,8 @@
   display:flex;
 }
 
-#field {
-  float:left;
-  height:46px;
-  width: 83%;
-  padding: 0px;
-  flex-grow: 1;
-}
-
 #send {
+  margin-right: 10px;
   float:right;
   height:46px;
   width: 70px;
@@ -88,34 +91,73 @@
   height: 46px;
 }
 
+#field {
+  margin-left: 10px;
+  float:left;
+  height:46px;
+  width: 83%;
+  padding: 0px;
+  flex-grow: 1;
+}
+
 #text-field {
   height:46px;
   width: 100%;
 }
 
-#sender_is_current_user {
-  float:left;
+.image {
+  width: 100%;
+  height: 100%;
 }
 
-#sender_is_profile {
+.sender_is_current_user {
   float:right;
+}
+
+.sender_is_profile {
+  float:left;
 }
 
 
 </style>
 <script>
 
+function updateScroll(){
+    var element = document.getElementById("chat");
+    element.scrollTop = element.scrollHeight;
+}
+
+
+
+updateScroll();
+
+setInterval(function() {
+  $.post({
+    type: "POST",
+    url: "/messages/{{profile.username}}/",
+    data: {"errand": "updates"},
+    success(response) {
+        var response = JSON.parse(response);
+        var messages = response["messages"];
+        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+message+"</textarea></div></div>");});
+      }});
+  },1000);
+
+
  $(document).on("click", "#send-button", function() {
-   console.log("Send");
     $.post({
       type: "POST",
       url: "/messages/{{profile.username}}/",
       data: {"content": $("#text-field").val()},
       success(response) {
-        var status = JSON.parse(response)["status"];
-        if (status === "Successfully sent") {location.reload();} 
+        var response = JSON.parse(response)
+        var status = response["status"];
+        if (status === "Successfully sent") {
+          $("#text-field").val("");
+          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+response["message"]+"</textarea></div></div>");
+            updateScroll();}
       }});
   });
 </script>
-<script src="/static/js/navbar.js"></script>>
+<script src="/static/js/navbar.js"></script>
 {% endblock %}

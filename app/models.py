@@ -2,14 +2,14 @@ from pathlib import Path
 import os
 import glob
 from datetime import datetime
-from app import app, db, login, geolocator, sqlalchemy, hybrid_method, hybrid_property
+from app import app, db, login, sqlalchemy, hybrid_method, hybrid_property, func
+from app.funcs import geocode, get_age, is_older, is_younger
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask import url_for
 import math
 from hashlib import md5
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from datetime import date
 
 
 @login.user_loader
@@ -25,8 +25,7 @@ befriends = db.Table('befriends',
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120), index=True)
-    birthday = db.Column(db.DateTime)
-    age = db.Column(db.Integer, default=0)
+    birthdate = db.Column(db.DateTime)
     gender = db.Column(db.String, default="Unknown")
 
     location = db.Column(db.String(120))
@@ -41,7 +40,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(128))
 
-    profile_pic_filename = db.Column(db.String(20))
+    profile_pic_filename = db.Column(db.String(25))
 
     def has_profile_pic(self):
         profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
@@ -63,7 +62,7 @@ class User(UserMixin, db.Model):
         Path(profile_pic_folder).mkdir(parents=True, exist_ok=True)
         image.save(profile_pic_path)
 
-    def get_profile_pic(self, size):
+    def get_profile_pic(self):
         if self.has_profile_pic():
             profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
             print(self.profile_pic_filename)
@@ -73,7 +72,7 @@ class User(UserMixin, db.Model):
 
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
-            digest, size)
+            digest, 256)
 
     befriended = db.relationship(
         'User', secondary=befriends,
@@ -129,12 +128,8 @@ class User(UserMixin, db.Model):
     def get_skill_titles(self):
         return [skill.title for skill in self.skills.all()]
 
-    def set_birthday(self, date):
-        self.birthday = date
-        self.age = relativedelta(dt1=datetime.now(), dt2=date).years
-
-    def update_age(self):
-        self.age = relativedelta(dt1=datetime.now(), dt2=self.birthday).years
+    def set_birthdate(self, date):
+        self.birthdate = date
 
     def clear_explore_query(self):
         self.has_previous_explore_search = False
@@ -177,7 +172,7 @@ class User(UserMixin, db.Model):
 
     def set_location(self, location, prelocated=False):
         if not prelocated:
-            location = geolocator.geocode(location)
+            location = geocode(location)
         if location:
             self.location = location.address
             self.latitude = location.latitude
@@ -187,16 +182,36 @@ class User(UserMixin, db.Model):
             self.rad_lng = math.pi * location.longitude / 180
             return location
 
+    @hybrid_property
+    def age(self):
+        return get_age(self.birthdate)
+
     @hybrid_method
-    def is_nearby_flat(self, latitude, longitude, radius):
-        return (self.latitude - latitude) * (self.latitude - latitude) * 111 + (self.longitude - longitude) * (self.longitude - longitude) * 111 <= radius * radius
+    def is_older_than(self, age):
+        return is_older(self.birthdate, age)
+
+    @hybrid_method
+    def is_younger_than(self, age):
+        return is_younger(self.birthdate, age)
+
+    @hybrid_method
+    def is_nearby(self, latitude, longitude, radius):
+        sin_rad_lat = math.sin(math.pi * latitude / 180)
+        cos_rad_lat = math.cos(math.pi * latitude / 180)
+        rad_lng = math.pi * longitude / 180
+        return func.acos(self.cos_rad_lat
+                         * cos_rad_lat
+                         * func.cos(self.rad_lng - rad_lng)
+                         + self.sin_rad_lat
+                         * sin_rad_lat
+                         ) * 6371 <= radius
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
 
 def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_age=None, max_age=None):
-    query = User.query.filter(User.is_nearby_flat(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
+    query = User.query.filter(User.is_nearby(latitude=float(latitude), longitude=float(longitude), radius=float(radius)))
 
     if skill:
         query = query.filter(User.skills.any(Skill.title == skill))
@@ -204,9 +219,11 @@ def get_explore_query(latitude, longitude, radius, skill=None, gender=None, min_
     if gender:
         query = query.filter_by(gender=gender)
 
-    if min_age and max_age:
-        query = query.filter(int(min_age) <= User.age).filter(User.age <= int(min_age))
+    if min_age:
+        query = query.filter(User.is_older_than(int(min_age)))
 
+    if max_age:
+        query = query.filter(User.is_younger_than(int(max_age)))
     return query
 
 

@@ -1,8 +1,8 @@
 """Tables
 
-Revision ID: 15663c20a5bd
+Revision ID: 6a587e6003ad
 Revises: 
-Create Date: 2020-05-28 23:36:32.952043
+Create Date: 2020-06-11 13:22:52.604277
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '15663c20a5bd'
+revision = '6a587e6003ad'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,8 +21,7 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=120), nullable=True),
-    sa.Column('birthday', sa.DateTime(), nullable=True),
-    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('birthdate', sa.DateTime(), nullable=True),
     sa.Column('gender', sa.String(), nullable=True),
     sa.Column('location', sa.String(length=120), nullable=True),
     sa.Column('latitude', sa.Float(), nullable=True),
@@ -33,7 +32,7 @@ def upgrade():
     sa.Column('username', sa.String(length=120), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
-    sa.Column('profile_pic_filename', sa.String(length=20), nullable=True),
+    sa.Column('profile_pic_filename', sa.String(length=25), nullable=True),
     sa.Column('bio', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')

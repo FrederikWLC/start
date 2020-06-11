@@ -1,3 +1,4 @@
+{% if current_user.is_authenticated %}
 <section class="hero is-white">
   <nav class="navbar is-transparent">
     <div class="navbar-brand">
@@ -22,22 +23,22 @@
               </a>
             </p>
             <p class="control">
-              <a href="/relations" class="button is-primary is-outlined">
+              <a href="/relations/" class="button is-primary is-outlined">
                 <span>Relations</span>
               </a>
             </p>
             <p class="control">
-              <a href="/explore" class="button is-primary is-outlined">
+              <a href="/explore/" class="button is-primary is-outlined">
                 <span>Explore</span>
               </a>
             </p>
             <p class="control">
-              <a href="/establish" class="button is-primary is-outlined">
+              <a href="/establish/" class="button is-primary is-outlined">
                 <span>Establish</span>
               </a>
             </p>
             <p class="control">
-              <a href="/logout" class="button is-primary is-outlined">
+              <a href="/logout/" class="button is-primary is-outlined">
                 <span>Logout</span>
               </a>
             </p>
@@ -54,3 +55,45 @@
     </div>
   </nav>
 </section>
+{% else %}
+<section class="hero is-white is-medium">
+  <nav class="navbar is-transparent">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <h6 href="/" class="subtitle"><strong>Start</strong></h6>
+      </a>
+      <div id="navbar-burger-id" class="navbar-burger burger" data-target="navbar-menu-id">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div id="navbar-menu-id" class="navbar-menu">
+      <div class="navbar-end"></div>
+      <div class="navbar-item">
+          <div class="field is-grouped">
+            
+            <p class="control">
+              <a href="/login/" class="button is-primary is-outlined">
+                <span>Login</span>
+              </a>
+            </p>
+            <p class="control">
+              <a href="/register/" class="button is-primary is-outlined">
+                <span>Register</span>
+              </a>
+            </p>
+            <p class="control">
+              <a href="/settings" class="button is-primary is-outlined">
+                <span id="cog" class="icon">
+                  <i class="fa fa fa-cog"></i>
+                </span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</section>
+{% endif %}

@@ -82,7 +82,7 @@
             {% if search and profiles %}
             {% for profile, distance in zip(profiles, distances) %}
               <div valign="top" class="row" id="bigBox" onclick="window.location='/profile/{{profile.username}}/';">
-            <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic(75) }}"></div>
+            <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic() }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
               
@@ -98,7 +98,7 @@
             {% endif %}
             {% if search and not profiles %}
             <div>
-              Couldn't find any profiles nearby with requirements..
+              Couldn't find any profiles nearby with requirements...
             </div>
             {% endif %}
             </div>
