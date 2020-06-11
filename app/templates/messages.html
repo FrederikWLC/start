@@ -9,8 +9,8 @@
             {% for message in messages %}
               <div class="message-container {% if message.sender == current_user %} sender_is_current_user {% else %} sender_is_profile {% endif %}">
                 <div class="profile_pic"><img src="{{ message.sender.get_profile_pic() }}" class="image"></div>
-                <div class="message">
-                <textarea class="textarea has-fixed-size" readonly>{{message.content}}</textarea>
+                <div class="message-box">
+                <textarea class="textarea has-fixed-size message" readonly>{{message.content}}</textarea>
               </div>
               </div>
         {% endfor %}
@@ -51,7 +51,7 @@
   clear: both;
 }
 
-.message {
+.message-box {
   float:right;
   flex-grow: 1;
   width: 90%;
@@ -127,6 +127,8 @@ function updateScroll(){
     element.scrollTop = element.scrollHeight;
 }
 
+
+
 updateScroll();
 
 setInterval(function() {
@@ -137,7 +139,7 @@ setInterval(function() {
     success(response) {
         var response = JSON.parse(response);
         var messages = response["messages"];
-        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+message+"</textarea></div></div>");});
+        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+message+"</textarea></div></div>");});
       }});
   },1000);
 
@@ -152,7 +154,7 @@ setInterval(function() {
         var status = response["status"];
         if (status === "Successfully sent") {
           $("#text-field").val("");
-          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message'> <textarea class='textarea has-fixed-size' readonly>"+response["message"]+"</textarea></div></div>");
+          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+response["message"]+"</textarea></div></div>");
             updateScroll();}
       }});
   });

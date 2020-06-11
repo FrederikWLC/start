@@ -4,14 +4,13 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from werkzeug.urls import url_parse
 from app import app, db, available_skills
 from app.models import User, Application, Message, Skill, sqlalchemy, get_explore_query, get_distances_from_to
-from app.funcs import geocode, get_image_from
+from app.funcs import geocode, get_age
 import json
 import folium
 import re
 import math
 from PIL import Image
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from datetime import date
 # ======== Routing =========================================================== #
 # -------- Login ------------------------------------------------------------- #
 
@@ -74,7 +73,7 @@ def register():
             return json.dumps({'status': 'Location must be filled in', 'box_ids': ['location']})
 
         if not month or not day or not year:
-            return json.dumps({'status': 'Birthday must be filled in', 'box_ids': ['birthday']})
+            return json.dumps({'status': 'Birthday must be filled in', 'box_ids': ['birthdate']})
 
         if not username:
             return json.dumps({'status': 'Username must be filled in', 'box_ids': ['username']})
@@ -85,8 +84,9 @@ def register():
         if not password:
             return json.dumps({'status': 'Password must be filled in', 'box_ids': ['password']})
 
-        if not relativedelta(dt1=datetime.now(), dt2=datetime(year=int(year), month=int(month), day=int(day))).years >= 13:
-            return json.dumps({'status': 'You must be over the age of 13', 'box_ids': ['birthday']})
+        birthdate = date(month=int(month), day=int(day), year=int(year))
+        if not get_age(birthdate) >= 13:
+            return json.dumps({'status': 'You must be over the age of 13', 'box_ids': ['birthdate']})
 
         if not User.query.filter_by(username=username).first() is None:
             return json.dumps({'status': 'Username taken', 'box_ids': ['username']})
@@ -101,7 +101,7 @@ def register():
 
         user = User(name=name, username=username, email=email)
         user.set_location(location, prelocated=True)
-        user.set_birthday(datetime(month=int(month), day=int(day), year=int(year)))
+        user.set_birthdate(birthdate)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -380,10 +380,11 @@ def edit_profile():
 
         if not month or not day or not year:
             print("All fields required")
-            return json.dumps({'status': 'Birthday must be filled in', 'box_id': 'birthday'})
+            return json.dumps({'status': 'Birthday must be filled in', 'box_id': 'birthdate'})
 
-        if not relativedelta(dt1=datetime.now(), dt2=datetime(year=int(year), month=int(month), day=int(day))).years >= 13:
-            return json.dumps({'status': 'You must be over the age of 13', 'box_id': 'birthday'})
+        birthdate = date(month=int(month), day=int(day), year=int(year))
+        if not get_age(birthdate) >= 13:
+            return json.dumps({'status': 'You must be over the age of 13', 'box_id': 'birthdate'})
 
         location = geocode(location)
         if not location:
@@ -398,7 +399,7 @@ def edit_profile():
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
-        current_user.set_birthday(datetime(month=int(month), day=int(day), year=int(year)))
+        current_user.set_birthdate(birthdate)
         current_user.gender = gender
 
         # Add skills that are not already there
@@ -416,7 +417,7 @@ def edit_profile():
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('edit_profile.html',
-                           available_skills=available_skills, selected_month=current_user.birthday.month, selected_day=current_user.birthday.month, selected_year=current_user.birthday.year)
+                           available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.month, selected_year=current_user.birthdate.year)
 
 
 @app.errorhandler(404)

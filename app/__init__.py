@@ -2,7 +2,7 @@ from flask import Flask
 from app.config import Config
 from flask_sqlalchemy import SQLAlchemy, sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from geopy import Nominatim
