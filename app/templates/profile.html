@@ -2,7 +2,7 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-medium">
+	<section class="hero is-primary is-bold is-small">
 
   	<div class="hero-body">
   
@@ -38,7 +38,7 @@
             </div>
             {% endif %}
             <div class="spacy row">
-              <a id="relations"{% if not profile == current_user %} href="/profile/{{profile.username}}/relations/" {% else %} href="/relations/" {% endif %} class="button is-primary is-normal is-outlined thicc">Relations</a>
+              <a id="connections"{% if not profile == current_user %} href="/profile/{{profile.username}}/connections/" {% else %} href="/connections/" {% endif %} class="button is-primary is-normal is-outlined thicc">Connections</a>
             </div>
             </div>
 
@@ -96,7 +96,7 @@
 
 #leftBox {
   float:left;
-  height:256px;
+  max-height: 256px;
   max-width: 256px;
   padding: 0px;
   margin-right: 10px;
@@ -104,9 +104,8 @@
 }
 
 #profile_pic {
-  background-color: white;
-  width: 255px;
-  height: 255px;
+  min-width: 64px;
+  min-height: 64px;
 }
 
 #image {
@@ -125,7 +124,7 @@
 #rightBox {
   float:right;
   height:256px;
-  width: 120px;
+  width: 140px;
   background: white;
   flex-grow: 0;
 }
@@ -141,7 +140,7 @@
   position: relative;
 }
 
-#relations {
+#connections {
   position: relative;
 }
 
