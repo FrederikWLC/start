@@ -10,7 +10,7 @@
         <div valign="top" class="row" id="bigBox">
             <div  width="256px" class="column" id="leftBox">
               <div id="profile_pic">
-              <img id="image" src="{{ profile.get_profile_pic() }}"></div>
+              <img id="profile_image" src="{{ profile.get_profile_pic() }}"></div>
               </div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
@@ -20,7 +20,7 @@
               <h2 style="color:gray">@{{ profile.username }}</h2>
                
               <hr id="seperation">
-              <textarea class="textarea has-fixed-size is-success" id="bio" readonly>{% if profile.bio %}{{ profile.bio }}{% endif %}</textarea> 
+              <textarea class="textarea has-fixed-size is-success" id="bio-box" readonly>{% if profile.bio %}{{ profile.bio }}{% endif %}</textarea> 
 
             </div>
             <div class="column" id="rightBox">
@@ -57,118 +57,11 @@
 
   </div>
 </section>
-{% include "footer.html" %}
+{% if edit_profile %}
+{% include "edit_profile.html" %}
+{% endif %}
 {% endblock %}
 {% block scripts %}
-<style>
-
-#bio {
-  border: none;
-  outline: none;
-
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-
-  margin: 0;
-  padding: 0;
-}
-
-/* Create three equal columns that floats next to each other */
-.column {
-  vertical-align: middle;
-  float: left;
-  padding: 10px;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-#bigBox {
-  width:100%;
-  height: 256px;
-  display: flex;
-}
-
-#leftBox {
-  float:left;
-  max-height: 256px;
-  max-width: 256px;
-  padding: 0px;
-  margin-right: 10px;
-  flex-grow: 2;
-}
-
-#profile_pic {
-  min-width: 64px;
-  min-height: 64px;
-}
-
-#image {
-  width: 100%;
-  height: 100%;
-}
-
-#middleBox {
-  float:middle;
-  height: 256px;
-  width: 50%;
-  background: white;
-  flex-grow: 5;
-}
-
-#rightBox {
-  float:right;
-  height:256px;
-  width: 140px;
-  background: white;
-  flex-grow: 0;
-}
-
-#skillBox {
-  height:256px;
-  width: 100%;
-  background: white;
-  margin-top: 10px;
-}
-
-#edit-button {
-  position: relative;
-}
-
-#connections {
-  position: relative;
-}
-
-
-.thicc {
-  font-weight: 600;
-}
-
-.spacy {
-  margin-bottom: 10px;
-}
-
-.skill {
-  margin-left: 5px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  margin-top: 5px;
-  display: inline-block;
-}
-
-#skill-title {
-  padding-top: 10px;
-}
-
-#seperation {
-  padding: 0;
-  margin: 10px;
-}
-</style>
+<link rel="stylesheet" href="/static/css/profile.css">
 <script src="/static/js/navbar.js"></script>>
 {% endblock %}

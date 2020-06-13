@@ -411,7 +411,7 @@ def edit_profile():
         print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
-    return render_template('edit_profile.html',
+    return render_template('profile.html', edit_profile=True, profile=current_user,
                            available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.month, selected_year=current_user.birthdate.year)
 
 
