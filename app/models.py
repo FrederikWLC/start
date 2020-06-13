@@ -100,13 +100,13 @@ class User(UserMixin, db.Model):
         else:
             return False
 
-    def form_relation_with(self, profile):
+    def form_connection_with(self, profile):
         if not self.is_befriending(profile):
             self.befriend(profile)
         if not profile.is_befriending(self):
             profile.befriend(self)
 
-    def get_relations(self):
+    def get_connections(self):
         return list(set(self.befriended).intersection(self.befriends))
 
     def get_received_messages_from(self, profile):

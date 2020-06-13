@@ -245,9 +245,9 @@ def profile(username=None):
     # -------- User page ---------------------------------------------------------- #
 
 
-@app.route("/relations/")
-@app.route("/profile/<username>/relations/", methods=["GET", "POST"])
-def relations(username=None):
+@app.route("/connections/")
+@app.route("/profile/<username>/connections/", methods=["GET", "POST"])
+def connections(username=None):
 
     if not current_user.is_authenticated and not username:
         return redirect(url_for('login'))
@@ -257,8 +257,8 @@ def relations(username=None):
     else:
         profile = current_user
 
-    relations = profile.get_relations()
-    return render_template('relations.html', relations=relations, profile=profile)
+    connections = profile.get_connections()
+    return render_template('connections.html', connections=connections, profile=profile)
 
 
 @app.route("/profile/<username>/connect/", methods=["GET", "POST"])
@@ -298,8 +298,7 @@ def application(username):
     application = Application.query.filter_by(sender=sender, recipient=current_user).first_or_404()
     if application.response != None:
         return redirect(url_for("establish"))
-    print(f"application response {application.response}")
-    print(f"current_user relations: {current_user.get_relations()}")
+
     if request.method == 'POST':
         print("POST")
         response = request.form["response"]
@@ -307,16 +306,12 @@ def application(username):
 
         if response == "Accept":
             application.response = True
-            current_user.form_relation_with(sender)
+            current_user.form_connection_with(sender)
             db.session.commit()
-            print(f"application response {application.response}")
-            print(f"current_user relations: {current_user.get_relations()}")
             return json.dumps({'status': 'Successfully responded'})
         if response == "Reject":
             application.response = False
             db.session.commit()
-            print(f"application response {application.response}")
-            print(f"current_user relations: {current_user.get_relations()}")
             return json.dumps({'status': 'Successfully responded'})
     return render_template('application.html', application=application)
 
@@ -349,7 +344,7 @@ def messages(username):
         db.session.commit()
         return json.dumps({'status': 'Successfully sent', 'message': content})
 
-    return render_template('messages.html', profile=profile, messages=messages)
+    return render_template('messages.html', profile=profile, messages=messages, enumerate=enumerate, messages_amount=len(messages))
 
 
 @app.route("/settings/profile/", methods=["GET", "POST"])
@@ -416,7 +411,7 @@ def edit_profile():
         print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
-    return render_template('edit_profile.html',
+    return render_template('profile.html', edit_profile=True, profile=current_user,
                            available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.month, selected_year=current_user.birthdate.year)
 
 

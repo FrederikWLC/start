@@ -7,21 +7,21 @@
 
   	<div class="hero-body">
       <div class="container has-text-centered">
-        <p class="title">Relations</p>
+        <p class="title">Connections</p>
           
-        {% if relations %}
-        {% for relation in relations %}
+        {% if connections %}
+        {% for connection in connections %}
 
               <div valign="top" class="row" id="bigBox">
-            <div class="column" id="leftBox" onclick="window.location='/profile/{{relation.username}}/';"><img id="image" src="{{ relation.get_profile_pic() }}"></div>
-            <div class="column" id="middleBox" onclick="window.location='/profile/{{relation.username}}/';">
+            <div class="column" id="leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img id="image" src="{{ connection.get_profile_pic() }}"></div>
+            <div class="column" id="middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
-              {{ relation.name }}</b>{% if relation == current_user %} (You){% endif %}</h1>
+              {{ connection.name }}</b>{% if connection == current_user %} (You){% endif %}</h1>
               
           </div>
             <div class="column" id="rightBox">
               {% if profile == current_user %}
-              <span class="icon is-large" onclick="window.location='/messages/{{relation.username}}/';">
+              <span class="icon is-large" onclick="window.location='/messages/{{connection.username}}/';">
               
   <span class="fa-2x" id="chat">
     <i class="fas fa-comments"></i>
@@ -34,7 +34,7 @@
               {% endfor %}
             {% else %}
             <div>
-              No relations yet..
+              No connections yet..
             </div>
             {% endif %}
 </div>

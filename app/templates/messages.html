@@ -8,9 +8,9 @@
             {% if messages %}
             {% for message in messages %}
               <div class="message-container {% if message.sender == current_user %} sender_is_current_user {% else %} sender_is_profile {% endif %}">
-                <div class="profile_pic"><img src="{{ message.sender.get_profile_pic() }}" class="image"></div>
+                <div class="profile_pic"><img src="{{ message.sender.get_profile_pic() }}" class="image" style="width: 50px; height: 50px;"></div>
                 <div class="message-box">
-                <textarea class="textarea has-fixed-size message" readonly>{{message.content}}</textarea>
+                {{message.content}}
               </div>
               </div>
         {% endfor %}
@@ -40,6 +40,7 @@
   height: 500px;
   margin-left: 10px;
   margin-right: 10px;
+  padding-right: 20px;
 }
 
 .message-container {
@@ -49,12 +50,25 @@
   display:flex;
   padding: 0px;
   clear: both;
+  text-align: center;
 }
 
 .message-box {
+  word-wrap: break-word;
   float:right;
   flex-grow: 1;
-  width: 90%;
+  max-width: 90%;
+  text-align: left;
+  border-radius: 10px;
+  background-color: whitesmoke;
+  padding: 10px;
+}
+
+::selection {
+  background: rgb(200,230,255); /* WebKit/Blink Browsers */
+}
+::-moz-selection {
+  background: rgb(200,230,255); /* Gecko Browsers */
 }
 
 .profile_pic {
@@ -122,14 +136,12 @@
 </style>
 <script>
 
+updateScroll();
+
 function updateScroll(){
     var element = document.getElementById("chat");
     element.scrollTop = element.scrollHeight;
 }
-
-
-
-updateScroll();
 
 setInterval(function() {
   $.post({
@@ -139,7 +151,7 @@ setInterval(function() {
     success(response) {
         var response = JSON.parse(response);
         var messages = response["messages"];
-        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+message+"</textarea></div></div>");});
+        messages.forEach( function (message, index) {$("#chat").append("<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message-box'>"+message+"</div></div>");});
       }});
   },1000);
 
@@ -154,7 +166,7 @@ setInterval(function() {
         var status = response["status"];
         if (status === "Successfully sent") {
           $("#text-field").val("");
-          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>"+response["message"]+"</textarea></div></div>");
+          $("#chat").append("<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message-box'>"+response["message"]+"</div></div>");
             updateScroll();}
       }});
   });
