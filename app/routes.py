@@ -132,7 +132,6 @@ def home():
 
 @app.route('/explore/', methods=['GET', 'POST'])
 def explore():
-    print(request.args)
     q_address = request.args.get('loc')
     q_radius = request.args.get('rad')
     q_skill = request.args.get('ski')
@@ -151,44 +150,34 @@ def explore():
         min_age = request.form.get("min_age")
         max_age = request.form.get("max_age")
 
-        print(address)
-        print(skill)
-        print(radius)
-        print(gender)
-        print(min_age)
-        print(max_age)
+        if not address and not radius:
+            return json.dumps({'status': 'All fields required', 'box_ids': ['location', 'radius']})
 
-        if not address or not radius:
-            print("All fields required")
-            return json.dumps({'status': 'All fields required'})
+        if not address:
+            return json.dumps({'status': 'Location required', 'box_ids': ['location']})
 
+        if not radius:
+            return json.dumps({'status': 'Radius required', 'box_ids': ['radius']})
         location = geocode(address)
         if not location:
-            print("Non-valid location")
-            return json.dumps({'status': 'Non-valid location'})
-
+            return json.dumps({'status': 'Non-valid location', 'box_ids': ['location']})
         try:
             float(radius)
         except ValueError:
-            print("Non-valid radius")
-            return json.dumps({'status': 'Non-valid radius'})
-
-        print(f"Successfully verified")
-        print(f"Searching potential co-entrepreneur with radius {radius}, location {location} and skill {skill}")
+            return json.dumps({'status': 'Non-valid radius', 'box_ids': ['radius']})
 
         url = f'/explore?loc={address}&rad={radius}'
 
         if skill:
-            if dict(zip(available_skills, available_skills)).get(skill):
+            if skill in available_skills:
                 url += f'&ski={skill}'
         if gender:
-            if {"Male": "Male", "Female": "Female", "Other": "Other"}.get(gender):
+            if gender in ["Male", "Female", "Other"]:
                 url += f'&gen={gender}'
         if min_age:
             url += f'&min={min_age}'
         if max_age:
             url += f'&max={max_age}'
-
         return json.dumps({'status': 'Successfully validated', 'url': url})
 
     if not q_address or not q_radius:
@@ -199,19 +188,12 @@ def explore():
         return render_template("explore.html", search=False, available_skills=available_skills, **q_strings)
 
     try:
-        print(q_address)
-        print(q_radius)
-        print(q_skill)
-        print(q_gender)
-        print(q_min_age)
-        print(q_max_age)
         query = get_explore_query(latitude=q_location.latitude, longitude=q_location.longitude, radius=q_radius, skill=q_skill, gender=q_gender, min_age=q_min_age, max_age=q_max_age)
 
     except ValueError:
         abort(404)
 
     profiles = query.limit(5).all()
-    print(profiles)
     distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
     return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, available_skills=available_skills, **q_strings)
 
