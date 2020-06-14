@@ -2,7 +2,7 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-small">
+	<section class="hero is-info is-bold is-small">
 
   	<div class="hero-body">
   
@@ -38,7 +38,7 @@
             </div>
             {% endif %}
             <div class="spacy row">
-              <a id="connections"{% if not profile == current_user %} href="/profile/{{profile.username}}/connections/" {% else %} href="/connections/" {% endif %} class="button is-primary is-normal is-outlined thicc">Connections</a>
+              <a id="connections"{% if not profile == current_user %} href="/profile/{{profile.username}}/connections/" {% else %} href="/connections/" {% endif %} class="button is-link is-normal is-outlined thicc">Connections</a>
             </div>
             </div>
 

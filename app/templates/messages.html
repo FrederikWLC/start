@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% block body %}
 {% include "navbar.html" %}
+<section class="hero is-info is-bold is-small">
+<div class="hero-body">
       <div class="container has-text-centered">
-        <p class="title">Messages: <b>{{profile.name}}</b></p>
-        <br>
+      <div id="chat-header" class="title">
+       <p style="display: inline-block;vertical-align: middle;text-align: center;">Messages: <b>{{profile.name}}</b><p>
+      </div>
         <div id="chat">
             {% if messages %}
             {% for message in messages %}
@@ -31,16 +34,35 @@
 </div>
 </div>
 </div>
+</div>
+</section>
 {% endblock %}
 {% block scripts %}
 <style>
+
+.hero-body {
+  padding-bottom: 15px !important;
+}
+
+#chat-header {
+  border: solid lightgray 1px;
+  margin-left: 10px;
+  margin-right: 10px;
+  height: 83.25px;
+  background-color: white;
+  color: black;
+  margin-bottom: 0px;
+  padding-top: 10px;
+}
 
 #chat {
   overflow: auto;
   height: 500px;
   margin-left: 10px;
   margin-right: 10px;
-  padding-right: 20px;
+  padding: 20px;
+  background-color: white;
+  color: black;
 }
 
 .message-container {
@@ -62,6 +84,7 @@
   border-radius: 10px;
   background-color: whitesmoke;
   padding: 10px;
+  color: rgb(20, 23, 26);
 }
 
 ::selection {
@@ -103,6 +126,9 @@
 #send-button {
   width: 70px;
   height: 46px;
+  border-radius: 0;
+  border: solid lightgray 1px;
+  border-left: 0px;
 }
 
 #field {
@@ -117,6 +143,7 @@
 #text-field {
   height:46px;
   width: 100%;
+  border-radius: 0;
 }
 
 .image {
