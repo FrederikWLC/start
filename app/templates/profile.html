@@ -38,7 +38,7 @@
             </div>
             {% endif %}
             <div class="spacy row">
-              <a id="connections"{% if not profile == current_user %} href="/profile/{{profile.username}}/connections/" {% else %} href="/connections/" {% endif %} class="button is-link is-normal is-outlined thicc">Connections</a>
+              <a id="connections"{% if not profile == current_user %} href="/profile/{{profile.username}}/connections/" {% else %} href="/connections/" {% endif %} class="button is-link is-normal is-outlined">Connections</a>
             </div>
             </div>
 
@@ -64,4 +64,5 @@
 {% block scripts %}
 <link rel="stylesheet" href="/static/css/profile.css">
 <script src="/static/js/navbar.js"></script>
+<script src="/static/js/profile.js"></script>
 {% endblock %}
