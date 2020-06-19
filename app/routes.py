@@ -26,6 +26,9 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        if not username and not password:
+            return json.dumps({'status': 'All fields must be filled in', 'box_ids': ['username', "password"]})
+
         if not username:
             return json.dumps({'status': 'Username must be filled in', 'box_ids': ['username']})
 
@@ -239,7 +242,7 @@ def connections(username=None):
     else:
         profile = current_user
 
-    connections = profile.get_connections()
+    connections = profile.connections.all()
     return render_template('connections.html', connections=connections, profile=profile)
 
 
@@ -251,7 +254,7 @@ def connect(username):
 
     profile = User.query.filter_by(username=username).first_or_404()
 
-    if current_user.is_related_to(profile) or current_user.submitted_applications.filter_by(recipient=profile).first():
+    if current_user.is_connected_to(profile) or current_user.submitted_applications.filter_by(recipient=profile).first():
         return redirect(url_for("profile", username=username))
 
     if request.method == 'POST':
@@ -304,7 +307,7 @@ def messages(username):
     if username == current_user.username:
         abort(404)
     profile = User.query.filter_by(username=username).first_or_404()
-    if not current_user.is_related_to(profile):
+    if not current_user.is_connected_to(profile):
         return redirect(url_for("profile", username=username))
 
     messages = current_user.get_messages_with(profile).all()
@@ -390,7 +393,6 @@ def edit_profile():
             if not skill.title in skills:
                 db.session.delete(skill)
 
-        print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('profile.html', edit_profile=True, profile=current_user,
@@ -401,3 +403,29 @@ def edit_profile():
 @app.route("/404/<e>/")
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
+@app.route("/create/", methods=["GET", "POST"])
+@login_required
+def create():
+    return render_template('create.html')
+
+
+@app.route("/create/group/", methods=["GET", "POST"])
+@login_required
+def create_group():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
+    connections = current_user.connections.all()
+    return render_template('connections.html', profile=current_user, connections=connections, create_group=True)
+
+
+@app.route("/create/project/", methods=["GET", "POST"])
+@login_required
+def create_project():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
+    connections = current_user.connections.all()
+    return render_template('connections.html', profile=current_user, connections=connections, create_project=True)

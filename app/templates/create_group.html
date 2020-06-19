@@ -2,8 +2,8 @@
 <div class="modal-background"></div>
 <div class="modal-card">
   <header class="modal-card-head">
-    <a href="javascript:location.replace('/profile/')" class="delete" aria-label="close"></a>
-    <p class="modal-card-title" id="header">Edit Profile</p>
+    <a href="javascript:location.replace('/connections/')" class="delete" aria-label="close"></a>
+    <p class="modal-card-title" id="header">Create Group</p>
     <button class="button is-info is-normal is-rounded" id="save-button">
       <span>Save</span>
     </button>
@@ -12,7 +12,7 @@
 
   <div id="profile_picture">
       <div id="image-wrapper" class="back-element">
-      <img id="image" src="{{ current_user.get_profile_pic() }}">
+      <img id="image" src="/static/images/defaults/group.png">
       </div>
       <input type="file"  accept="image/*" name="image" id="upload" onchange="loadFile(event)" style="display: none;">
       <button class="button is-success is-large is-inverted front-element" id="upload-button">
@@ -25,15 +25,15 @@
   <div>
     <div id="name">
       <h1><b>Name</b></h1>
-      <textarea class="textarea has-fixed-size" placeholder="Add your name" id="name-field" rows="1">{{current_user.name}}</textarea>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's name" id="name-field" rows="1"></textarea>
     </div>
       <div id="feedback-name" class="feedback">
         <div class="message"></div>
       </div>
       <br id="name-anchor">
     <div id="bio">
-      <h1><b>Bio</b></h1>
-      <textarea class="textarea has-fixed-size" placeholder="Add your bio" id="bio-field" rows="3">{% if current_user.bio %}{{ current_user.bio }}{% endif %}</textarea>
+      <h1><b>Description</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's description" id="description-field" rows="3"></textarea>
     </div>
       <div id="feedback-bio" class="feedback">
         <div class="message"></div>

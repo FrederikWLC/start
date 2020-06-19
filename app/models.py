@@ -22,6 +22,17 @@ befriends = db.Table('befriends',
                      db.Column('befriended_id', db.Integer, db.ForeignKey('user.id')))
 
 
+groups = db.Table('groups',
+                  db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                  db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
+                  )
+
+group_to_group = db.Table('group_to_group',
+                          db.Column('megagroup_id', db.Integer, db.ForeignKey('group.id'), primary_key=True),
+                          db.Column('microgroup_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
+                          )
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120), index=True)
@@ -80,6 +91,10 @@ class User(UserMixin, db.Model):
         secondaryjoin=(befriends.c.befriended_id == id),
         backref=db.backref('befriends', lazy='dynamic'), lazy='dynamic')
 
+    memberships = db.relationship(
+        'Membership', backref='owner', lazy='dynamic',
+        foreign_keys='Membership.owner_id')
+
     bio = db.Column(db.Text())
 
     def befriend(self, profile):
@@ -90,15 +105,13 @@ class User(UserMixin, db.Model):
         if self.is_befriending(profile):
             self.befriended.remove(profile)
 
+    @hybrid_method
     def is_befriending(self, profile):
-        return self.befriended.filter(
-            befriends.c.befriended_id == profile.id).count() > 0
+        return User.query.filter(User.id == profile.id).filter(User.befriends.any(id=self.id)).count() > 0
 
-    def is_related_to(self, profile):
-        if profile in self.befriended and self in profile.befriended:
-            return True
-        else:
-            return False
+    @ hybrid_method
+    def is_connected_to(self, profile):
+        return self.is_befriending(profile) and profile.is_befriending(self)
 
     def form_connection_with(self, profile):
         if not self.is_befriending(profile):
@@ -106,8 +119,9 @@ class User(UserMixin, db.Model):
         if not profile.is_befriending(self):
             profile.befriend(self)
 
-    def get_connections(self):
-        return list(set(self.befriended).intersection(self.befriends))
+    @ hybrid_property
+    def connections(self):
+        return User.query.filter(User.befriends.any(id=self.id)).filter(befriends.c.befriended_id == User.id)
 
     def get_received_messages_from(self, profile):
         return self.received_messages.filter_by(sender=profile)
@@ -122,25 +136,14 @@ class User(UserMixin, db.Model):
         return any([skill.title == title for skill in self.skills.all()])
 
     def has_skills(self, titles):
-        user_titles = self.get_skill_titles()
-        return all([title in user_titles for title in titles])
+        return all([title in self.skill_titles for title in titles])
 
-    def get_skill_titles(self):
+    @ hybrid_property
+    def skill_titles(self):
         return [skill.title for skill in self.skills.all()]
 
     def set_birthdate(self, date):
         self.birthdate = date
-
-    def clear_explore_query(self):
-        self.has_previous_explore_search = False
-        self.previous_explore_location = None
-        self.previous_explore_latitude = None
-        self.previous_explore_longitude = None
-        self.previous_explore_sin_rad_lat = None
-        self.previous_explore_cos_rad_lat = None
-        self.previous_explore_rad_lng = None
-        self.previous_explore_radius = None
-        self.previous_explore_skill = None
 
     # Submitted applications:
     submitted_applications = db.relationship(
@@ -182,19 +185,19 @@ class User(UserMixin, db.Model):
             self.rad_lng = math.pi * location.longitude / 180
             return location
 
-    @hybrid_property
+    @ hybrid_property
     def age(self):
         return get_age(self.birthdate)
 
-    @hybrid_method
+    @ hybrid_method
     def is_older_than(self, age):
         return is_older(self.birthdate, age)
 
-    @hybrid_method
+    @ hybrid_method
     def is_younger_than(self, age):
         return is_younger(self.birthdate, age)
 
-    @hybrid_method
+    @ hybrid_method
     def is_nearby(self, latitude, longitude, radius):
         sin_rad_lat = math.sin(math.pi * latitude / 180)
         cos_rad_lat = math.cos(math.pi * latitude / 180)
@@ -271,7 +274,67 @@ class Message(db.Model):
 class Skill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(20), index=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
 
     def __repr__(self):
         return "<Skill {}>".format(self.title)
+
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    memberships = db.relationship(
+        'Membership', backref='group', lazy='dynamic',
+        foreign_keys='Membership.group_id')
+
+    members = db.relationship('User',
+                              secondary=groups,
+                              backref=db.backref('groups',
+                                                 lazy='dynamic',
+                                                 order_by=name))
+    microgroups = db.relationship('Group',
+                                  secondary=group_to_group,
+                                  primaryjoin=group_to_group.c.microgroup_id == id,
+                                  secondaryjoin=group_to_group.c.megagroup_id == id,
+                                  backref="megagroups",
+                                  remote_side=[group_to_group.c.microgroup_id])
+
+    @ hybrid_property
+    def is_microgroup(self):
+        return self.megagroups.count() > 0
+
+    @ hybrid_property
+    def is_megagroup(self):
+        return self.microgroups.count() > 0
+
+    def add_member(self, profile, permission="member"):
+        self.members.append(profile)
+        membership = Membership(owner=profile, group=self)
+        permission = Permission(title=permission, membership=membership)
+
+    def remove_member(self, profile):
+        self.members.remove(profile)
+
+    def __repr__(self):
+        return "<Group {}>".format(self.name)
+
+
+class Membership(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id', ondelete='CASCADE'))
+    permissions = db.relationship(
+        'Permission', backref='membership', lazy='dynamic',
+        foreign_keys='Permission.membership_id')
+
+    def __repr__(self):
+        return "<Membership {}>".format(self.owner.username)
+
+
+class Permission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(20), index=True)
+    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id', ondelete='CASCADE'))
+
+    def __repr__(self):
+        return "<Permission {}>".format(self.title)

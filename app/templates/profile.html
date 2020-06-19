@@ -30,7 +30,7 @@
               <a class="button is-link is-normal is-outlined" id="edit-button" href="/settings/profile/">Edit Profile</a>
               {% elif current_user.submitted_applications.filter_by(recipient=profile, response=None).first() %}
               <a class="button is-info is-normal" title="Pending.." disabled>Pending..</a>
-              {% elif not current_user.is_related_to(profile) %}
+              {% elif not current_user.is_connected_to(profile) %}
               <a class="button is-link is-normal is-outlined" href="/profile/{{profile.username}}/connect/">Connect</a>
               {% else %}
               <a class="button is-info is-normal thicc">Connected</a>
@@ -64,5 +64,9 @@
 {% block scripts %}
 <link rel="stylesheet" href="/static/css/profile.css">
 <script src="/static/js/navbar.js"></script>
-<script src="/static/js/profile.js"></script>
+{% if edit_profile %}
+<link rel="stylesheet" href="/static/css/edit_profile.css">
+<script src="/static/js/edit_profile.js"></script>
+{% endif %}
+<script src="/static/js/datepicker.js"></script>
 {% endblock %}

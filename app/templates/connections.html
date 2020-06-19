@@ -3,31 +3,30 @@
 
 {% include "navbar.html" %}
 
+{% if profile == current_user %}
 	<section class="hero is-info is-bold is-small">
-
   	<div class="hero-body">
-      <div class="container has-text-centered">
+      <div class="has-text-centered" id="bigBox">
+        <div class="column" id="connections-box">
         <p class="title">Connections</p>
-          
+        
         {% if connections %}
         {% for connection in connections %}
 
-              <div valign="top" class="row" id="bigBox">
-            <div class="column" id="leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img id="image" src="{{ connection.get_profile_pic() }}"></div>
-            <div class="column" id="middleBox" onclick="window.location='/profile/{{connection.username}}/';">
+              <div valign="top" class="row media-bigBox">
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.get_profile_pic() }}"></div>
+            <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
-              {{ connection.name }}</b>{% if connection == current_user %} (You){% endif %}</h1>
+              {{ connection.name }}</b></h1>
               
           </div>
-            <div class="column" id="rightBox">
-              {% if profile == current_user %}
-              <span class="icon is-large" onclick="window.location='/messages/{{connection.username}}/';">
+            <div class="media-column media-rightBox" onclick="window.location='/messages/{{connection.username}}/';">
+              <span class="icon is-large">
               
-  <span class="fa-2x" id="chat">
+  <span class="fa-2x chat">
     <i class="fas fa-comments"></i>
   </span>
 </span>
-              {% endif %}
             </div>
             <hr>
         </div>
@@ -38,83 +37,119 @@
             </div>
             {% endif %}
 </div>
+<div class="column" id="groups-box">
+        <div class="row" style="margin: 0 auto; width: 150px;">
+        <p class="title" style="float: left;">Groups</p>
+        <button class="button circle-button is-info is-inverted is-outlined" style="float: right;" onclick="window.location='/create/group/';">
+          <span class='icon is-normal is-danger'><i class='fa fa-plus'></i></span>
+        </button>
+      </div>
+        {% if groups %}
+        {% for group in groups %}
+        {% endfor %}
+        {% else %}
+        <div>
+        No groups yet..
+        </div>
+        {% endif %}
+</div>
+  <div class="column">
+         <div class="row" style="margin: 0 auto; width: 160px;">
+        <p class="title" style="float: left;">Projects</p>
+        <button class="button circle-button is-info is-inverted is-outlined" style="float: right;" onclick="window.location='/create/project/';">
+          <span class='icon is-normal is-danger'><i class='fa fa-plus'></i></span>
+        </button>
+      </div>
+        <div class="media-container">
+        {% if projects %}
+        {% for project in projects %}
+        {% endfor %}
+        {% else %}
+        <div>
+        No projects yet..
+        </div>
+        {% endif %}
+        </div>
+  </div>
+
+</div>
   </div>
 </section>
-{% include "footer.html" %}
+{% else %}
+  <section class="hero is-info is-bold is-small">
+    <div class="hero-body">
+      <div class="has-text-centered" id="bigBox">
+        <div class="column" id="connections-box">
+        <p class="title">Connections</p>
+        
+        {% if connections %}
+        {% for connection in connections %}
+
+              <div valign="top" class="row media-bigBox">
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.get_profile_pic() }}"></div>
+            <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
+              <h1 style="color:black"><b>   
+              {{ connection.name }}</b>{% if connection == current_user %} (You){% endif %}</h1>
+              
+          </div>
+            <div class="media-column media-rightBox">
+            </div>
+            <hr>
+        </div>
+              {% endfor %}
+            {% else %}
+            <div>
+              No connections yet..
+            </div>
+            {% endif %}
+</div>
+<div class="column" id="groups-box">
+        <p class="title">Groups</p>
+        {% if groups %}
+        {% for group in groups %}
+        {% endfor %}
+        {% else %}
+        <div>
+        No groups yet..
+        </div>
+        {% endif %}
+</div>
+  <div class="column">
+        <p class="title">Projects</p>
+        <div class="media-container">
+        {% if projects %}
+        {% for project in projects %}
+        {% endfor %}
+        {% else %}
+        <div>
+        No projects yet..
+        </div>
+        {% endif %}
+        </div>
+  </div>
+
+</div>
+  </div>
+</section>
+{% endif %}
+
+{% if create_group %}
+{% include "create_group.html" %}
+{% elif create_project %}
+{% include "create_project.html" %}
+{% endif %}
+
 {% endblock %}
 {% block scripts %}
-<style>
+<link rel="stylesheet" href="/static/css/connections.css">
+<script src="/static/js/connections.js"></script>
+{% if create_group %}
+<link rel="stylesheet" href="/static/css/create_group.css">
+<script src="/static/js/create_group.js"></script>
+{% elif create_project %}
+<link rel="stylesheet" href="/static/css/create_project.css">
+<script src="/static/js/create_project.js"></script>
+{% endif %}
 
-
-
-/* Create three equal columns that floats next to each other */
-.column {
-  vertical-align: middle;
-  float: left;
-  padding: 10px;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-#bigBox {
-  width: 425px;
-  height: 75px;
-  margin: auto;
-  cursor: pointer;
-}
-
-#bigBox:hover{
-  outline:3px solid white;
-}
-
-#leftBox {
-  float:left;
-  height:75px;
-  width: 75px;
-  padding: 0px;
-  padding-right: 0px;
-  background-color: white;
-}
-
-#image {
-  width: 100%;
-  height: 100%;
-}
-
-#middleBox {
-  float:middle;
-  height: 75px;
-  width: 250px;
-  background: white;
-  padding-left: 1px;
-}
-
-#rightBox {
-  float:right;
-  height:75px;
-  width: 100px;
-  background: white;
-  color: black;
-}
-
-#field {
-  width: 425px;
-  margin: auto;
-}
-</style>
-<script>
-          $(document).ready(function () {
-        $('#chat').hover(function () {
-            $(this).addClass('fa-3x');
-        }, function () {
-            $(this).removeClass('fa-3x');
-        });
-    });
-</script>
-<script src="/static/js/navbar.js"></script>>
+<script src="/static/js/navbar.js"></script>
 {% endblock %}

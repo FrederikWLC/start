@@ -2,8 +2,8 @@
 <div class="modal-background"></div>
 <div class="modal-card">
   <header class="modal-card-head">
-    <a href="javascript:location.replace('/profile/')" class="delete" aria-label="close"></a>
-    <p class="modal-card-title" id="header">Edit Profile</p>
+    <a href="javascript:location.replace('/connections/')" class="delete" aria-label="close"></a>
+    <p class="modal-card-title" id="header">Create Project</p>
     <button class="button is-info is-normal is-rounded" id="save-button">
       <span>Save</span>
     </button>
@@ -12,7 +12,7 @@
 
   <div id="profile_picture">
       <div id="image-wrapper" class="back-element">
-      <img id="image" src="{{ current_user.get_profile_pic() }}">
+      <img id="image" src="/static/images/defaults/project.png">
       </div>
       <input type="file"  accept="image/*" name="image" id="upload" onchange="loadFile(event)" style="display: none;">
       <button class="button is-success is-large is-inverted front-element" id="upload-button">
