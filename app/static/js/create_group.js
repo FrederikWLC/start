@@ -46,27 +46,28 @@ function loadFile(input) {
   $("#image").attr('src', URL.createObjectURL(event.target.files[0]));
 }
   console.log("WOOOOOW");
-};
+}
 
 $(document).on("click", "#upload-button", function() {
   $("#upload").click();
 });
 
 
-$("#members-field").on('input', function() {
-    if ($("#members-field").text().length > 0) {
+function get_connections_from_text(text) {
+  if (text.length > 0) {
     $.post({
       type: "POST",
       url: "/get/connections/",
-      data: {"text":$("#members-field").text()},
+      data: {"text":text},
       success(response) {
         var response = JSON.parse(response);
         var connections = response["connections"];
         $('#select-connections').empty();
         connections.forEach( function (profile, index) {
-         $("#select-connections").append('<div valign="top" class="profile row media-bigBox" data-username="'+profile.username+'"><div class="media-column media-leftBox" ><img class="image" src="' + profile.profile_pic + '"></div><div class="media-column media-middleBox"><h1 style="color:black"><b>'+ profile.name +'</b></h1>');
+         $("#select-connections").append('<div valign="top" class="profile row profile-bigBox" data-username="'+profile.username+'" data-name="'+profile.name+'"><div class="profile-column profile-leftBox" ><img class="image" src="' + profile.profile_pic + '"></div><div class="profile-column profile-rightBox"><h1><b>'+ profile.name +'</b></h1>');
         });
         $('#select-connections').removeClass("vanish");
+        updateScroll();
       }
   });
   }
@@ -75,9 +76,33 @@ $("#members-field").on('input', function() {
     $('#select-connections').empty();
 
   }
+}
+
+$("#members-text-field").on('input', function() {
+    get_connections_from_text($("#members-text-field").text());
 });
 
-$(document).on("click", ".profile", function() {
-  var username=$(this).data('username');
-
+$(document).on("click", "#members-field", function() {
+  $("#members-text-field").focus();
 });
+
+function updateScroll(){
+    var element = document.getElementById("container");
+    element.scrollTop = element.scrollHeight;
+}
+
+$(document).on("click", function() {
+  $('#select-connections').addClass("vanish");
+  $('#select-connections').empty();
+});
+
+$(document).on("click", "#members-field", function() {
+  get_connections_from_text($("#members-text-field").text());
+});
+
+$(document).on("click", ".profile-bigBox", function() {
+  $("#members-text-field").focus();
+  $("#members-text-field").text("");
+  $("#member-tags-container").append('<div class="profile tag" data-username="'+$(this).data('username')+'">'+$(this).data('name')+'</div>')
+});
+

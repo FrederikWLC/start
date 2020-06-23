@@ -97,9 +97,92 @@ select option[disabled] {
 }
 
 #select-connections {
+  margin-top: 5px;
   overflow: auto;
+  border: 1px solid lightgray;
 }
 
 #members-field {
+  overflow-y: auto;
   text-align: left;
+  word-wrap: break-word;
+  height: 75px !important;
+  min-height: 0px !important;
+}
+
+.black {
+  background: black;
+}
+
+#members-field:focus-within {
+ border: 1px solid #3273dc;
+ box-shadow:0 0 0 0.125em rgba(50,115,220,.25);
+}
+
+#members-text-field:empty:before{
+    content:attr(data-text);
+    color:#C8C8C8;
+
+}
+
+#members-text-field {
+  display:inline-block;
+}
+
+#members-text-field:focus {
+    outline: 0px solid transparent;
+}
+
+.profile-bigBox {
+  float: middle;
+  width: 100%
+  height: 75px;
+  margin: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-bigBox:hover {
+background-color: royalblue;
+  color: white;
+}
+
+.profile-leftBox {
+  float:left;
+  height:100%;
+  min-height: 100%;
+  width: 75px;
+  padding: 0px;
+  margin: 0;
+  background-color: white;
+}
+
+.image {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.profile-rightBox {
+  min-height: 100%;
+  float:right;
+  height:100%;
+  min-width: 350px;
+  padding: 10px;
+  text-align: left;
+}
+
+.profile-column {
+  float: left;
+}
+
+.profile {
+  margin-right: 5px;
+}
+
+#member-tags-container {
+  display: inline;
 }
