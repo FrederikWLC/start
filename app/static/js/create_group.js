@@ -19,23 +19,9 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 
    formData.append("name", $("#name-field").val());
 
-   formData.append("bio", $("#bio-field").val());
+   formData.append("description", $("#description-field").val());
 
    formData.append("location", $("#location-field").val());
-
-   if ($("#month").val()) {
-    formData.append("month", $("#month").val());
-  }
-   
-   if ($("#day").val()) {
-    formData.append("day", $("#day").val());
-  }
-
-  if ($("#year").val()) {
-    formData.append("year", $("#year").val());
-  }
-
-   formData.append("gender", $("#gender").val());
 
    formData.append("skills", JSON.stringify(skills));
 
@@ -55,44 +41,6 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
   });
 
 
-$(document).on('change','#selected-skill',function(){
-               if ($('#selected-skill').val() != 'Select skill') {
-                $('#add-skill').prop("disabled", false);
-               }       
-             });
-
-
-
- $(document).on("click", "#add-a-skill", function() {
-    $('#add-a-skill').addClass("vanish");
-    $('#select-skill').removeClass("vanish");
-    if ($('#selected-skill').val() == 'Select skill') {
-            $('#add-skill').prop("disabled", true);
-    }       
-    $('#add-skill').removeClass("vanish");
-  });
-
- $(document).on("click", "#add-skill", function() {
-  $('#select-skill').addClass("vanish");
-  $('#add-skill').addClass("vanish");
-  $('#add-a-skill').removeClass("vanish");
-  $("#skills").append("<div class='skill'><button class='button is-info is-normal is-'><span class='skill-title'>"+$('#selected-skill').val()+"</span><span class='icon remove-skill'><a class='delete'></a></span></button></div>");
-  $('#selected-skill option:selected').remove();
-  console.log($('#selected-skill').children().length)
-  if ($('#selected-skill').children().length == 1) {
-    $('#add-a-skill').addClass("vanish");
-  }
- });
-
-
- $(document).on("click", ".remove-skill", function() {
-  $('#selected-skill').append('<option>'+$(this).prev('span').text()+'</option>')
-  $(this).closest('div').remove();
-  $('#add-a-skill').removeClass("vanish");
-
-});
-
-
 function loadFile(input) {
   if (event.target.files[0]) {
   $("#image").attr('src', URL.createObjectURL(event.target.files[0]));
@@ -102,4 +50,34 @@ function loadFile(input) {
 
 $(document).on("click", "#upload-button", function() {
   $("#upload").click();
+});
+
+
+$("#members-field").on('input', function() {
+    if ($("#members-field").text().length > 0) {
+    $.post({
+      type: "POST",
+      url: "/get/connections/",
+      data: {"text":$("#members-field").text()},
+      success(response) {
+        var response = JSON.parse(response);
+        var connections = response["connections"];
+        $('#select-connections').empty();
+        connections.forEach( function (profile, index) {
+         $("#select-connections").append('<div valign="top" class="profile row media-bigBox" data-username="'+profile.username+'"><div class="media-column media-leftBox" ><img class="image" src="' + profile.profile_pic + '"></div><div class="media-column media-middleBox"><h1 style="color:black"><b>'+ profile.name +'</b></h1>');
+        });
+        $('#select-connections').removeClass("vanish");
+      }
+  });
+  }
+  else {
+    $('#select-connections').addClass("vanish");
+    $('#select-connections').empty();
+
+  }
+});
+
+$(document).on("click", ".profile", function() {
+  var username=$(this).data('username');
+
 });

@@ -53,13 +53,14 @@ class User(UserMixin, db.Model):
 
     profile_pic_filename = db.Column(db.String(25))
 
+    @ hybrid_property
     def has_profile_pic(self):
         profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
         if os.path.exists(profile_pic_folder):
             return bool(os.listdir(profile_pic_folder))
 
     def remove_profile_pic(self):
-        if self.has_profile_pic():
+        if self.has_profile_pic:
             profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
             for fname in os.listdir(profile_pic_folder):
                 path = Path(os.path.join(profile_pic_folder, fname))
@@ -73,8 +74,9 @@ class User(UserMixin, db.Model):
         Path(profile_pic_folder).mkdir(parents=True, exist_ok=True)
         image.save(profile_pic_path)
 
-    def get_profile_pic(self):
-        if self.has_profile_pic():
+    @ hybrid_property
+    def profile_pic(self):
+        if self.has_profile_pic:
             profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
             print(self.profile_pic_filename)
             url = url_for('static', filename=f"images/profile_pics/{self.username}/{self.profile_pic_filename}")
@@ -122,6 +124,9 @@ class User(UserMixin, db.Model):
     @ hybrid_property
     def connections(self):
         return User.query.filter(User.befriends.any(id=self.id)).filter(befriends.c.befriended_id == User.id)
+
+    def get_connections_from_text(self, text):
+        return self.connections.filter(func.lower(User.name).like(f'%{text.lower()}%'))
 
     def get_received_messages_from(self, profile):
         return self.received_messages.filter_by(sender=profile)

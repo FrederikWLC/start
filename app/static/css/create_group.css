@@ -95,3 +95,11 @@ select option[disabled] {
   padding: 0;
   margin: 0 auto;
 }
+
+#select-connections {
+  overflow: auto;
+}
+
+#members-field {
+  text-align: left;
+}

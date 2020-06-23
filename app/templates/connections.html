@@ -14,7 +14,7 @@
         {% for connection in connections %}
 
               <div valign="top" class="row media-bigBox">
-            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.get_profile_pic() }}"></div>
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic }}"></div>
             <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
               {{ connection.name }}</b></h1>
@@ -86,7 +86,7 @@
         {% for connection in connections %}
 
               <div valign="top" class="row media-bigBox">
-            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.get_profile_pic() }}"></div>
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic }}"></div>
             <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
               {{ connection.name }}</b>{% if connection == current_user %} (You){% endif %}</h1>

@@ -429,3 +429,12 @@ def create_project():
 
     connections = current_user.connections.all()
     return render_template('connections.html', profile=current_user, connections=connections, create_project=True)
+
+
+@app.route("/get/connections/", methods=["POST"])
+def get_connections():
+    if request.method == 'POST':
+        text = request.form.get("text")
+        connections = current_user.get_connections_from_text(text).limit(10).all()
+        formatted_connections = [{"username":profile.username, "name":profile.name, "profile_pic":profile.profile_pic} for profile in connections]
+        return json.dumps({'connections': formatted_connections})
