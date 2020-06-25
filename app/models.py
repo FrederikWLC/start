@@ -125,8 +125,12 @@ class User(UserMixin, db.Model):
     def connections(self):
         return User.query.filter(User.befriends.any(id=self.id)).filter(befriends.c.befriended_id == User.id)
 
-    def get_connections_from_text(self, text):
-        return self.connections.filter(func.lower(User.name).like(f'%{text.lower()}%'))
+    def get_connections_from_text(self, text, already_chosen=None):
+        query = self.connections.filter(func.lower(User.name).like(f'%{text.lower()}%'))
+        if already_chosen:
+            for username in already_chosen:
+                query = query.filter(User.username != username)
+        return query
 
     def get_received_messages_from(self, profile):
         return self.received_messages.filter_by(sender=profile)

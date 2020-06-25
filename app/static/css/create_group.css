@@ -103,11 +103,10 @@ select option[disabled] {
 }
 
 #members-field {
-  overflow-y: auto;
   text-align: left;
   word-wrap: break-word;
-  height: 75px !important;
-  min-height: 0px !important;
+  height: auto;
+  min-height: 75px;
 }
 
 .black {
@@ -119,14 +118,13 @@ select option[disabled] {
  box-shadow:0 0 0 0.125em rgba(50,115,220,.25);
 }
 
-#members-text-field:empty:before{
+#members-text-field.placeholder:empty:before{
     content:attr(data-text);
     color:#C8C8C8;
 
 }
 
 #members-text-field {
-  display:inline-block;
 }
 
 #members-text-field:focus {
@@ -184,5 +182,4 @@ background-color: royalblue;
 }
 
 #member-tags-container {
-  display: inline;
 }

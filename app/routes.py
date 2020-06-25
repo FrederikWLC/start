@@ -435,6 +435,7 @@ def create_project():
 def get_connections():
     if request.method == 'POST':
         text = request.form.get("text")
-        connections = current_user.get_connections_from_text(text).limit(10).all()
-        formatted_connections = [{"username":profile.username, "name":profile.name, "profile_pic":profile.profile_pic} for profile in connections]
+        already_chosen = eval(request.form.get("already_chosen"))
+        connections = current_user.get_connections_from_text(text, already_chosen).limit(10).all()
+        formatted_connections = [{"username": profile.username, "name": profile.name, "profile_pic": profile.profile_pic} for profile in connections]
         return json.dumps({'connections': formatted_connections})

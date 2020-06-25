@@ -11,8 +11,6 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 }
 
  $(document).on("click", "#save-button", function() {
-   console.log("Applying edit");
-   var skills = $("#skills :button").map(function() { return $(this).children().first().text();}).get();
    
    var formData = new FormData();
    formData.append('image', $("#upload").prop('files')[0]);
@@ -21,9 +19,13 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 
    formData.append("description", $("#description-field").val());
 
-   formData.append("location", $("#location-field").val());
+   formData.append("location-status", $("#location-status-field").val());
 
-   formData.append("skills", JSON.stringify(skills));
+   if ($("#location-status-field").val() == "Fixed") {
+   formData.append("location", $("#location-field").val());
+ }
+
+   formData.append("members", JSON.stringify($("#member-tags-container").children().toArray().map( element => $(element).data('username'))));
 
     $.post({
       type: "POST",
@@ -41,11 +43,21 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
   });
 
 
+function updatePlaceholder() {
+  console.log($("#member-tags-container").children().length);
+  if ($("#member-tags-container").children().length == 0) {
+    $("#members-text-field").addClass('placeholder');
+}
+  else {
+    $("#members-text-field").removeClass('placeholder');
+  }
+}
+
 function loadFile(input) {
   if (event.target.files[0]) {
   $("#image").attr('src', URL.createObjectURL(event.target.files[0]));
 }
-  console.log("WOOOOOW");
+
 }
 
 $(document).on("click", "#upload-button", function() {
@@ -53,24 +65,36 @@ $(document).on("click", "#upload-button", function() {
 });
 
 
-function get_connections_from_text(text) {
+function get_connections_from_text() {
+  var text = $("#members-text-field").text();
+  var already_chosen = $("#member-tags-container").children().toArray().map( element => $(element).data('username'));
   if (text.length > 0) {
+    var formData = new FormData();
+    formData.append('text', text);
+    formData.append('already_chosen', JSON.stringify(already_chosen));
     $.post({
       type: "POST",
       url: "/get/connections/",
-      data: {"text":text},
+      data: formData,
+      processData: false,
+      contentType: false,
       success(response) {
         var response = JSON.parse(response);
         var connections = response["connections"];
         $('#select-connections').empty();
         connections.forEach( function (profile, index) {
-         $("#select-connections").append('<div valign="top" class="profile row profile-bigBox" data-username="'+profile.username+'" data-name="'+profile.name+'"><div class="profile-column profile-leftBox" ><img class="image" src="' + profile.profile_pic + '"></div><div class="profile-column profile-rightBox"><h1><b>'+ profile.name +'</b></h1>');
+         $("#select-connections").append('<div valign="top" class="row profile-bigBox" data-username="'+profile.username+'" data-name="'+profile.name+'"><div class="profile-column profile-leftBox" ><img class="image" src="' + profile.profile_pic + '"></div><div class="profile-column profile-rightBox"><h1><b>'+ profile.name +'</b></h1>');
         });
+        if (!$('#select-connections').is(':empty')){
         $('#select-connections').removeClass("vanish");
         updateScroll();
       }
-  });
-  }
+      else {
+        $('#select-connections').addClass("vanish");
+      }
+
+      }
+  });}
   else {
     $('#select-connections').addClass("vanish");
     $('#select-connections').empty();
@@ -79,7 +103,7 @@ function get_connections_from_text(text) {
 }
 
 $("#members-text-field").on('input', function() {
-    get_connections_from_text($("#members-text-field").text());
+    get_connections_from_text();
 });
 
 $(document).on("click", "#members-field", function() {
@@ -91,18 +115,36 @@ function updateScroll(){
     element.scrollTop = element.scrollHeight;
 }
 
-$(document).on("click", function() {
+$(document).on("click", function(e) {
+  if (!($(e.target)[0] === $("#members-field")[0] || $(e.target).parent()[0] === $("#members-field")[0])) {
   $('#select-connections').addClass("vanish");
   $('#select-connections').empty();
+}
 });
 
 $(document).on("click", "#members-field", function() {
-  get_connections_from_text($("#members-text-field").text());
+  get_connections_from_text();
 });
 
 $(document).on("click", ".profile-bigBox", function() {
   $("#members-text-field").focus();
   $("#members-text-field").text("");
-  $("#member-tags-container").append('<div class="profile tag" data-username="'+$(this).data('username')+'">'+$(this).data('name')+'</div>')
+  $("#member-tags-container").append('<div class="profile tag is-medium" data-username="'+$(this).data('username')+'"><span>'+$(this).data('name')+'</span><span class="icon remove-member"><a class="delete"></a></span></div>')
+  updatePlaceholder();
 });
 
+
+
+$(document).on("click", ".remove-member", function() {
+  $(this).closest('div').remove();
+  updatePlaceholder();
+});
+
+$(document).on('change', '#location-status-field', function() {
+  if ($('#location-status-field').val() == "Unfixed") {
+    $('#location-field').addClass("vanish");
+  }
+  else {
+    $('#location-field').removeClass("vanish");
+  }
+  });
