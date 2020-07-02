@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, available_skills
-from app.models import User, Application, Message, Skill, sqlalchemy, get_explore_query, get_distances_from_to
+from app.models import User, Application, Message, Skill, Group, sqlalchemy, get_explore_query, get_distances_from_to
 from app.funcs import geocode, get_age
 import json
 import folium
@@ -243,7 +243,9 @@ def connections(username=None):
         profile = current_user
 
     connections = profile.connections.all()
-    return render_template('connections.html', connections=connections, profile=profile)
+    groups = profile.groups.all()
+    print(groups)
+    return render_template('connections.html', connections=connections, groups=groups, profile=profile)
 
 
 @app.route("/profile/<username>/connect/", methods=["GET", "POST"])
@@ -336,7 +338,6 @@ def messages(username):
 @login_required
 def edit_profile():
     if request.method == 'POST':
-        print("POST")
         name = request.form.get("name")
         bio = request.form.get("bio")
         location = request.form.get("location")
@@ -375,7 +376,7 @@ def edit_profile():
             image = Image.open(file)
             new_image = image.resize((256, 256), Image.ANTIALIAS)
             new_image.format = image.format
-            current_user.save_profile_pic(new_image)
+            current_user.profile_pic.save(image=new_image)
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
@@ -396,7 +397,7 @@ def edit_profile():
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('profile.html', edit_profile=True, profile=current_user,
-                           available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.month, selected_year=current_user.birthdate.year)
+                           available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.day, selected_year=current_user.birthdate.year)
 
 
 @app.errorhandler(404)
@@ -414,8 +415,45 @@ def create():
 @app.route("/create/group/", methods=["GET", "POST"])
 @login_required
 def create_group():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
+    if request.method == 'POST':
+        handle = request.form.get("handle")
+        name = request.form.get("name")
+        description = request.form.get("description")
+        privacy = request.form.get("privacy")
+        location_is_fixed = int(request.form.get("location_is_fixed"))
+        address = request.form.get("address")
+        members = eval(request.form.get("members"))
+
+        file = request.files.get("image")
+
+        if not handle:
+            return json.dumps({'status': 'Handle must be filled in', 'box_id': 'handle'})
+
+        if not name:
+            return json.dumps({'status': 'Name must be filled in', 'box_id': 'name'})
+
+        if not address and location_is_fixed:
+            return json.dumps({'status': 'Location must be filled in if fixed', 'box_id': 'location'})
+
+        if not Group.query.filter_by(handle=handle).first() is None:
+            return json.dumps({'status': 'Handle taken', 'box_ids': ['handle']})
+
+        location = geocode(address)
+        if not location:
+            return json.dumps({'status': 'Non-valid location', 'box_id': 'location'})
+
+        group = Group(handle=handle, name=name, description=description, privacy=privacy, location_is_fixed=location_is_fixed)
+        group.add_members([User.query.filter_by(username=username).first() for username in members] + [current_user])
+        if location_is_fixed:
+            group.set_location(location, prelocated=True)
+
+        if file:
+            image = Image.open(file)
+            new_image = image.resize((256, 256), Image.ANTIALIAS)
+            new_image.format = image.format
+            group.profile_pic.save(image=new_image)
+        db.session.commit()
+        return json.dumps({'status': 'Successfully saved'})
 
     connections = current_user.connections.all()
     return render_template('connections.html', profile=current_user, connections=connections, create_group=True)
@@ -437,5 +475,15 @@ def get_connections():
         text = request.form.get("text")
         already_chosen = eval(request.form.get("already_chosen"))
         connections = current_user.get_connections_from_text(text, already_chosen).limit(10).all()
-        formatted_connections = [{"username": profile.username, "name": profile.name, "profile_pic": profile.profile_pic} for profile in connections]
+        formatted_connections = [{"username": profile.username, "name": profile.name, "profile_pic": profile.profile_pic.src} for profile in connections]
         return json.dumps({'connections': formatted_connections})
+
+# -------- User page ---------------------------------------------------------- #
+
+
+@app.route("/group/<handle>/", methods=["GET", "POST"])
+def group(handle):
+
+    group = Group.query.filter_by(handle=handle).first_or_404()
+
+    return render_template('group.html', group=group)

@@ -12,6 +12,7 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 
  $(document).on("click", "#save-button", function() {
    console.log("Applying edit");
+   console.log($("#day").val());
    var skills = $("#skills :button").map(function() { return $(this).children().first().text();}).get();
    
    var formData = new FormData();

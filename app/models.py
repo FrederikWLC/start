@@ -3,13 +3,14 @@ import os
 import glob
 from datetime import datetime
 from app import app, db, login, sqlalchemy, hybrid_method, hybrid_property, func
-from app.funcs import geocode, get_age, is_older, is_younger
+from app.funcs import geocode, get_age, is_older, is_younger, join_parts
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask import url_for
 import math
 from hashlib import md5
 from datetime import date
+from PIL import Image
 
 
 @login.user_loader
@@ -47,45 +48,23 @@ class User(UserMixin, db.Model):
     cos_rad_lat = db.Column(db.Float)
     rad_lng = db.Column(db.Float)
 
-    username = db.Column(db.String(120), index=True)
+    username = db.Column(db.String(120), index=True, unique=True)
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(128))
 
-    profile_pic_filename = db.Column(db.String(25))
+    profile_pic_id = db.Column(db.Integer, db.ForeignKey('picture.id'))
 
-    @ hybrid_property
-    def has_profile_pic(self):
-        profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
-        if os.path.exists(profile_pic_folder):
-            return bool(os.listdir(profile_pic_folder))
+    profile_pic = db.relationship("Picture", foreign_keys=[profile_pic_id])
 
-    def remove_profile_pic(self):
-        if self.has_profile_pic:
-            profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
-            for fname in os.listdir(profile_pic_folder):
-                path = Path(os.path.join(profile_pic_folder, fname))
-                path.unlink()
+    cover_pic_id = db.Column(db.Integer, db.ForeignKey('picture.id'))
 
-    def save_profile_pic(self, image):
-        profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
-        self.remove_profile_pic()
-        self.profile_pic_filename = f"{datetime.now().strftime('%Y,%m,%d,%H,%M,%S')}.{image.format}"
-        profile_pic_path = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username, self.profile_pic_filename)
-        Path(profile_pic_folder).mkdir(parents=True, exist_ok=True)
-        image.save(profile_pic_path)
+    cover_pic = db.relationship("Picture", foreign_keys=[cover_pic_id])
 
-    @ hybrid_property
-    def profile_pic(self):
-        if self.has_profile_pic:
-            profile_pic_folder = os.path.join(app.root_path, 'static', 'images', 'profile_pics', self.username)
-            print(self.profile_pic_filename)
-            url = url_for('static', filename=f"images/profile_pics/{self.username}/{self.profile_pic_filename}")
-            print(url)
-            return url
-
-        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
-        return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
-            digest, 256)
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        # do custom initialization here
+        self.profile_pic = Picture(path=f"/static/images/profiles/{self.username}/profile_pic", replacement=gravatar(self.email.lower()))
+        self.cover_pic = Picture(path=f"/static/images/profiles/{self.username}/cover_pic", replacement="/static/images/defaults/world.jpg")
 
     befriended = db.relationship(
         'User', secondary=befriends,
@@ -291,7 +270,28 @@ class Skill(db.Model):
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    handle = db.Column(db.String(120), index=True, unique=True)
     name = db.Column(db.String(64))
+    description = db.Column(db.Text())
+    privacy = db.Column(db.String(7), default="Public")
+    location_is_fixed = db.Column(db.Boolean, default=True)
+
+    location = db.Column(db.String(120))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+
+    sin_rad_lat = db.Column(db.Float)
+    cos_rad_lat = db.Column(db.Float)
+    rad_lng = db.Column(db.Float)
+
+    profile_pic_id = db.Column(db.Integer, db.ForeignKey('picture.id'))
+
+    profile_pic = db.relationship("Picture", foreign_keys=[profile_pic_id])
+
+    cover_pic_id = db.Column(db.Integer, db.ForeignKey('picture.id'))
+
+    cover_pic = db.relationship("Picture", foreign_keys=[cover_pic_id])
+
     memberships = db.relationship(
         'Membership', backref='group', lazy='dynamic',
         foreign_keys='Membership.group_id')
@@ -300,13 +300,19 @@ class Group(db.Model):
                               secondary=groups,
                               backref=db.backref('groups',
                                                  lazy='dynamic',
-                                                 order_by=name))
+                                                 order_by=name), lazy='dynamic')
     microgroups = db.relationship('Group',
                                   secondary=group_to_group,
                                   primaryjoin=group_to_group.c.microgroup_id == id,
                                   secondaryjoin=group_to_group.c.megagroup_id == id,
                                   backref="megagroups",
                                   remote_side=[group_to_group.c.microgroup_id])
+
+    def __init__(self, **kwargs):
+        super(Group, self).__init__(**kwargs)
+        # do custom initialization here
+        self.profile_pic = Picture(path=f"/static/images/groups/{self.handle}/profile_pic", replacement="/static/images/defaults/group.png")
+        self.cover_pic = Picture(path=f"/static/images/groups/{self.handle}/cover_pic", replacement="/static/images/defaults/world.jpg")
 
     @ hybrid_property
     def is_microgroup(self):
@@ -316,6 +322,10 @@ class Group(db.Model):
     def is_megagroup(self):
         return self.microgroups.count() > 0
 
+    def add_members(self, profiles, permission="member"):
+        for profile in profiles:
+            self.add_member(profile=profile, permission=permission)
+
     def add_member(self, profile, permission="member"):
         self.members.append(profile)
         membership = Membership(owner=profile, group=self)
@@ -323,6 +333,27 @@ class Group(db.Model):
 
     def remove_member(self, profile):
         self.members.remove(profile)
+
+    def remove_members(self, profiles):
+        for profile in profiles:
+            self.remove_member(profile=profile)
+
+    def set_location(self, location, prelocated=False):
+        if not prelocated:
+            location = geocode(location)
+        if location:
+            self.location = location.address
+            self.latitude = location.latitude
+            self.longitude = location.longitude
+            self.sin_rad_lat = math.sin(math.pi * location.latitude / 180)
+            self.cos_rad_lat = math.cos(math.pi * location.latitude / 180)
+            self.rad_lng = math.pi * location.longitude / 180
+            return location
+
+    def member_has_permission(self, profile, permission):
+        if profile in self.members.all():
+            return self.memberships.filter(Membership.owner == profile, Membership.permissions.any(Permission.title == permission)).count() > 0
+        return False
 
     def __repr__(self):
         return "<Group {}>".format(self.name)
@@ -347,3 +378,82 @@ class Permission(db.Model):
 
     def __repr__(self):
         return "<Permission {}>".format(self.title)
+
+
+class File():
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    filename = db.Column(db.String(25))
+
+    path = db.Column(db.String(2048))
+
+    replacement = db.Column(db.String(2048))
+
+    @ hybrid_property
+    def is_empty(self):
+        if not self.filename or not self.path:
+            return True
+        folder = os.path.join(app.root_path, Path(self.path))
+        if os.path.exists(folder):
+            return not bool(os.listdir(folder))
+
+    def empty(self):
+        if not self.is_empty:
+            folder = os.path.join(app.root_path, Path(self.path), self.filename)
+            for filename in os.listdir(folder):
+                path = Path(os.path.join(folder, filename))
+                path.unlink()
+
+    def save(self, file_format, path=None):
+        if not path:
+            path = self.path
+        path = Path(path)
+        folder = os.path.join(app.root_path, path)
+        self.empty()
+        filename = f"{datetime.now().strftime('%Y,%m,%d,%H,%M,%S')}.{file_format}"
+        full_path = os.path.join(app.root_path, path, filename)
+        Path(folder).mkdir(parents=True, exist_ok=True)
+        self.filename = str(filename)
+        self.path = str(path)
+        return full_path
+
+    @ hybrid_property
+    def src(self):
+        if not self.is_empty:
+            folder = os.path.join(app.root_path, Path(self.path), self.filename)
+            url = url_for(Path(self.path).parts[0], filename=join_parts(*Path(self.path).parts[1:], self.filename))
+            return url
+
+        return self.replacement
+
+    @ hybrid_property
+    def full_path(self):
+        if not self.is_empty:
+            return os.path.join(app.root_path, self.path, self.filename)
+
+    def __repr__(self):
+        return "<File {}>".format(self.path)
+
+
+class Picture(db.Model, File):
+
+    def save(self, image, path=None):
+        full_path = super().save(file_format=image.format, path=path)
+        # Custom save
+        image.save(full_path)
+        return full_path
+
+    def show(self):
+        # For display in shell
+        image = Image.open(self.full_path)
+        image.show()
+
+    def __repr__(self):
+        return "<Picture {}>".format(self.path)
+
+
+def gravatar(text_to_digest, size=256):
+    digest = md5(text_to_digest.encode("utf-8")).hexdigest()
+    return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
+        digest, size)

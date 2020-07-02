@@ -33,3 +33,7 @@ def is_older(date_of_birth, age):
 def is_younger(date_of_birth, age):
     today = date.today()
     return date_of_birth >= today - relativedelta(years=age)
+
+
+def join_parts(*parts):
+    return '/'.join(p.strip('/') for p in parts)

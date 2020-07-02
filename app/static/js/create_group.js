@@ -11,18 +11,25 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
 }
 
  $(document).on("click", "#save-button", function() {
-   
-   var formData = new FormData();
+   save();
+  });
+
+function save() {
+  var formData = new FormData();
    formData.append('image', $("#upload").prop('files')[0]);
+
+   formData.append("handle", $("#handle-field").val());
 
    formData.append("name", $("#name-field").val());
 
    formData.append("description", $("#description-field").val());
 
-   formData.append("location-status", $("#location-status-field").val());
+   formData.append("privacy", $("#privacy-field").val());
 
-   if ($("#location-status-field").val() == "Fixed") {
-   formData.append("location", $("#location-field").val());
+   formData.append("location_is_fixed", $("#location-status-field").val());
+
+   if ($("#location-status-field").val() == 1) {
+   formData.append("address", $("#location-field").val());
  }
 
    formData.append("members", JSON.stringify($("#member-tags-container").children().toArray().map( element => $(element).data('username'))));
@@ -36,12 +43,11 @@ document.getElementById(box_id+"-anchor").scrollIntoView(false);
       success(response) {
         var response = JSON.parse(response);
         var status = response["status"];
-        if (status === "Successfully saved") { location.replace("/profile/"); }
+        if (status === "Successfully saved") { location.replace("/connections/"); }
         else{message(status, response["box_id"], true);}
         
       }});
-  });
-
+}
 
 function updatePlaceholder() {
   console.log($("#member-tags-container").children().length);
@@ -115,6 +121,14 @@ function updateScroll(){
     element.scrollTop = element.scrollHeight;
 }
 
+function add_member(name, username) {
+  $("#members-text-field").focus();
+  $("#members-text-field").text("");
+  $("#member-tags-container").append('<div class="profile tag is-medium" data-username="'+username+'"><span>'+name+'</span><span class="icon remove-member"><a class="delete"></a></span></div>')
+  updatePlaceholder();
+  get_connections_from_text();
+}
+
 $(document).on("click", function(e) {
   if (!($(e.target)[0] === $("#members-field")[0] || $(e.target).parent()[0] === $("#members-field")[0])) {
   $('#select-connections').addClass("vanish");
@@ -127,10 +141,7 @@ $(document).on("click", "#members-field", function() {
 });
 
 $(document).on("click", ".profile-bigBox", function() {
-  $("#members-text-field").focus();
-  $("#members-text-field").text("");
-  $("#member-tags-container").append('<div class="profile tag is-medium" data-username="'+$(this).data('username')+'"><span>'+$(this).data('name')+'</span><span class="icon remove-member"><a class="delete"></a></span></div>')
-  updatePlaceholder();
+  add_member(name=$(this).data('name'),username=$(this).data('username'));
 });
 
 
@@ -141,10 +152,36 @@ $(document).on("click", ".remove-member", function() {
 });
 
 $(document).on('change', '#location-status-field', function() {
-  if ($('#location-status-field').val() == "Unfixed") {
+  if ($('#location-status-field').val() == 0) {
     $('#location-field').addClass("vanish");
   }
   else {
     $('#location-field').removeClass("vanish");
   }
   });
+
+$(document).on('keydown', '#members-text-field', function(event) {
+    var key = event.keyCode || event.charCode;
+
+    if (key == 8 && $("#members-text-field").text().length == 0){
+        $("#member-tags-container").children().last().remove();
+      }
+
+    if (key == 13 || key == 9 || key == 10) {
+      if (key == 10 || key == 13) {
+        event.preventDefault();
+      }
+      if ($(".hovered").length == 1) {
+      add_member(name=$(".hovered").data('name'),username=$(".hovered").data('username'));
+    }
+    }
+  });
+
+
+$(document).on('mouseover', '.profile-bigBox', function() {
+  $(this).addClass('hovered');
+});
+
+$(document).on('mouseleave', '.profile-bigBox', function() {
+  $(this).removeClass('hovered');
+});

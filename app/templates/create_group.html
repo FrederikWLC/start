@@ -23,6 +23,14 @@
   </div>
   <br>
   <div>
+    <div id="handle">
+      <h1><b>Handle</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's handle" id="handle-field" rows="1"></textarea>
+    </div>
+    <div id="feedback-handle" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="handle-anchor">
     <div id="name">
       <h1><b>Name</b></h1>
       <textarea class="textarea has-fixed-size" placeholder="Add your group's name" id="name-field" rows="1"></textarea>
@@ -60,8 +68,8 @@
 
       <div class='select'> 
         <select id="location-status-field"> 
-          <option selected>Fixed</option>
-          <option>Unfixed</option>
+          <option value="1" selected>Fixed</option>
+          <option value="0">Unfixed</option>
       </select>
       </div>
     </div>

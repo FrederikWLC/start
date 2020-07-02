@@ -14,7 +14,7 @@
         {% for connection in connections %}
 
               <div valign="top" class="row media-bigBox">
-            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic }}"></div>
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic.src }}"></div>
             <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
               {{ connection.name }}</b></h1>
@@ -46,6 +46,17 @@
       </div>
         {% if groups %}
         {% for group in groups %}
+        <div valign="top" class="row media-bigBox">
+            <div class="media-column media-leftBox" onclick="window.location='/group/{{group.handle}}/';"><img class="image" src="{{ group.profile_pic.src }}"></div>
+            <div class="media-column media-middleBox" onclick="window.location='/group/{{group.handle}}/';">
+              <h1 style="color:black"><b>   
+              {{ group.name }}</b></h1>
+              
+          </div>
+            <div class="media-column media-rightBox">
+            </div>
+            <hr>
+        </div>
         {% endfor %}
         {% else %}
         <div>
@@ -86,7 +97,7 @@
         {% for connection in connections %}
 
               <div valign="top" class="row media-bigBox">
-            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic }}"></div>
+            <div class="media-column media-leftBox" onclick="window.location='/profile/{{connection.username}}/';"><img class="image" src="{{ connection.profile_pic.src }}"></div>
             <div class="media-column media-middleBox" onclick="window.location='/profile/{{connection.username}}/';">
               <h1 style="color:black"><b>   
               {{ connection.name }}</b>{% if connection == current_user %} (You){% endif %}</h1>
@@ -105,8 +116,20 @@
 </div>
 <div class="column" id="groups-box">
         <p class="title">Groups</p>
+
         {% if groups %}
         {% for group in groups %}
+         <div valign="top" class="row media-bigBox">
+            <div class="media-column media-leftBox" onclick="window.location='/group/{{group.handle}}/';"><img class="image" src="{{ group.profile_pic.src }}"></div>
+            <div class="media-column media-middleBox" onclick="window.location='/group/{{group.handle}}/';">
+              <h1 style="color:black"><b>   
+              {{ group.name }}</b></h1>
+              
+          </div>
+            <div class="media-column media-rightBox">
+            </div>
+            <hr>
+        </div>
         {% endfor %}
         {% else %}
         <div>
