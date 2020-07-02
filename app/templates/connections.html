@@ -5,7 +5,7 @@
 
 {% if profile == current_user %}
 	<section class="hero is-info is-bold is-small" style="user-select: none;">
-  	<div class="hero-body">
+  	<div class="hero-body background">
       <div class="has-text-centered" id="bigBox">
         <div class="column" id="connections-box">
         <p class="title">Connections</p>
@@ -164,6 +164,7 @@
 
 {% endblock %}
 {% block scripts %}
+<link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/connections.css">
 <script src="/static/js/connections.js"></script>
 {% if create_group %}
