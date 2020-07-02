@@ -2,6 +2,7 @@
 {% block body %}
 
 {% include "navbar.html" %}
+  <div class="background" style="height: 1080px;">
 	<section class="hero is-info is-bold is-small">
 
   	<div class="hero-body">
@@ -57,11 +58,13 @@
 
   </div>
 </section>
+</div>
 {% if edit_profile %}
 {% include "edit_profile.html" %}
 {% endif %}
 {% endblock %}
 {% block scripts %}
+<link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/profile.css">
 <script src="/static/js/navbar.js"></script>
 {% if edit_profile %}
