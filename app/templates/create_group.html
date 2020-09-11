@@ -1,0 +1,95 @@
+<div class="modal is-active">
+<div class="modal-background"></div>
+<div class="modal-card">
+  <header class="modal-card-head">
+    <a href="javascript:location.replace('/connections/')" class="delete" aria-label="close"></a>
+    <p class="modal-card-title" id="header">Create Group</p>
+    <button class="button is-info is-normal is-rounded" id="save-button">
+      <span>Save</span>
+    </button>
+    </header>
+  <section class="modal-card-body has-text-centered" id="container">
+
+  <div id="profile_picture">
+      <div id="image-wrapper" class="back-element">
+      <img id="image" src="/static/images/defaults/group.png">
+      </div>
+      <input type="file"  accept="image/*" name="image" id="upload" onchange="loadFile(event)" style="display: none;">
+      <button class="button is-success is-large is-inverted front-element" id="upload-button">
+    <span class="icon is-medium">
+      <i id="upload-icon" class="fa fa-camera-retro"></i>
+    </span>
+  </button>
+  </div>
+  <br>
+  <div>
+    <div id="handle">
+      <h1><b>Handle</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's handle" id="handle-field" rows="1"></textarea>
+    </div>
+    <div id="feedback-handle" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="handle-anchor">
+    <div id="name">
+      <h1><b>Name</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's name" id="name-field" rows="1"></textarea>
+    </div>
+      <div id="feedback-name" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="name-anchor">
+    <div id="bio">
+      <h1><b>Description</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your group's description" id="description-field" rows="3"></textarea>
+    </div>
+      <div id="feedback-bio" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="bio-anchor">
+    <div id="privacy">
+      <h1><b>Privacy</b></h1>
+      <div class='select'> 
+        <select id="privacy-field"> 
+          <option selected>Public</option>
+          <option>Private</option>
+          <option>Secret</option>
+      </select>
+    </div>
+    </div>
+    <div id="feedback-privacy" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="privacy-anchor">
+    <div id="location">
+
+      <h1><b>Location</b></h1>
+      <textarea class="textarea has-fixed-size" placeholder="Add your location" id="location-field" rows="2">{{ current_user.location }}</textarea>
+
+      <div class='select'> 
+        <select id="location-status-field"> 
+          <option value="1" selected>Fixed</option>
+          <option value="0">Unfixed</option>
+      </select>
+      </div>
+    </div>
+      <div id="feedback-location" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="location-anchor">
+
+    <div id="members">
+
+      <h1><b>Members</b></h1>
+      <div class="textarea has-fixed-size" id="members-field"><div id="member-tags-container"></div><div data-text="Add your groups' members" id="members-text-field" class="placeholder" contenteditable></div></div>
+    </div>
+    <div id="select-connections" class="vanish"></div>
+      <div id="feedback-members" class="feedback">
+        <div class="message"></div>
+      </div>
+      <br id="members-anchor">
+
+</div>
+</section>
+</div>
+</div>

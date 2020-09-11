@@ -2,19 +2,18 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-medium" style="user-select: none;">
+	<section class="hero is-info is-bold is-medium" style="user-select: none;">
 
-  	<div class="hero-body">
+  	<div class="hero-body background">
     <div id="field" class="container has-text-centered">
           <div id="explore-box" class="explore-box">
               <p class="title">Explore</p>
-              <br>
               <div class="field">
   <div class="control has-icons-left">
 
-              <div class="field">
+              <div class="field" id="location">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="location" class="input is-success" type="location" placeholder="Location" {% if address %} value="{{address}}" {% endif %}>
+                  <input id="location-field" class="input is-info" type="location" placeholder="Location" {% if address %} value="{{address}}" {% endif %}>
                   <span class="icon is-small is-left">
                     <i class="fa fa-globe"></i>
                   </span>
@@ -24,9 +23,9 @@
                 </p>
               </div>
 
-              <div class="field">
+              <div class="field" id="radius">
                 <p class="control has-icons-left has-icons-right">
-                  <input id="radius" class="input " type="int" placeholder="Radius (km)" {% if radius %} value="{{radius}}" {% endif %}>
+                  <input id="radius-field" class="input is-info" type="int" placeholder="Radius (km)" {% if radius %} value="{{radius}}" {% endif %}>
                   <span class="icon is-small is-left">
                     <i class="fa fa-wifi"></i>
                   </span>
@@ -37,7 +36,7 @@
               </div>
 
 <div style="margin: 0 auto; display: table;">
-    <div class="select is-primary">
+    <div class="select is-info">
     <select id="skill">
     <option value="" selected>All</option>
     {% for title in available_skills %}
@@ -50,7 +49,7 @@
       </div>
     </div>
 
-<div class="select is-primary">
+<div class="select is-info">
     <select id="gender">
     <option value="" selected>All</option>
     <option {% if gender == "Male" %} selected {% endif %}>Male</option>
@@ -63,7 +62,7 @@
       </div>
     
   </div>
-</div>
+
   <div>
   <p style="float: left;">Age:</p>
   <p id="amount" style="float: right;"></p>
@@ -73,16 +72,16 @@
 
   </div>
 </div>
-              <br>
-              <a id="explore-button" class="form-button button is-primary is-inverted is-outlined">Explore</a>
-              <br>
+              <a id="explore-button" class="form-button button is-info is-inverted is-outlined">Explore</a>
+               <br>
               <br>
               <i><a id="feedback" class="feedback"></a></i>
+              <br>
             </div>
             {% if search and profiles %}
             {% for profile, distance in zip(profiles, distances) %}
               <div valign="top" class="row" id="bigBox" onclick="window.location='/profile/{{profile.username}}/';">
-            <div class="column" id="leftBox"><img id="image" src="{{ profile.get_profile_pic() }}"></div>
+            <div class="column" id="leftBox"><img id="image" src="{{ profile.profile_pic.src }}"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>
               
@@ -110,6 +109,7 @@
 {% include "footer.html" %}
 {% endblock %}
 {% block scripts %}
+<link rel="stylesheet" href="/static/css/base.css">
 <style>
 
 
@@ -179,7 +179,7 @@
 }
 
 #slider-range .ui-slider-range {
-  background: rgb(50,255,50);
+  background-color: rgb(0, 112, 184);
 }
 
 .ui-slider .ui-slider-handle {
@@ -188,18 +188,23 @@
 </style>
 <script src="../static/js/navbar.js"></script>
 <script type="text/javascript">
-  function message(status, shake=false, id="") {
-  if (shake) {
-    $("#"+id).effect("shake", {direction: "right", times: 2, distance: 8}, 250);
-  } 
-  document.getElementById("feedback").innerHTML = status;
-  $("#feedback").show().delay(2000).fadeOut();
+  function message(status, box_ids, shake=false) {
+  $("#feedback").stop(stopAll=true);
+  box_ids.forEach( function (box_id, index) {
+    if (shake) {
+    $("#"+box_id).effect("shake", {direction: "right", times: 2, distance: 8}, 350);
+  }
+  $("#feedback").animate({ opacity: 1, queue: false })
+});
+  $('#feedback').text(status);
+  $("#feedback").delay(2000).animate({ opacity: 0, queue: false });
 }
+
  $(document).on("click", "#explore-button", function() {
 
    var formData = new FormData();
-   formData.append("location", $("#location").val());
-   formData.append("radius", $("#radius").val());
+   formData.append("location", $("#location-field").val());
+   formData.append("radius", $("#radius-field").val());
 
    if ($("#skill").val()){
     formData.append("skill", $("#skill").val());
@@ -222,9 +227,11 @@
       processData: false,
       contentType: false,
       success(response) {
-        var status = JSON.parse(response)["status"];
-        if (status === "Successfully validated") { location.replace(JSON.parse(response)["url"]); }
-        else{message(status, true, "explore-box");}
+        var response = JSON.parse(response);
+        var status = response["status"];
+        if (status === "Successfully validated") { location.replace(response["url"]); }
+
+        else{message(status, response["box_ids"], true);}
         
       }});
  });

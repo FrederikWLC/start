@@ -2,7 +2,7 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-medium">
+	<section class="hero is-info is-bold is-medium">
 
   	<div class="hero-body">
     <div class="container has-text-centered">
@@ -12,7 +12,7 @@
             {% for application in applications %}
             <div valign="top" class="row" id="bigBox" onclick="window.location='/establish/application/{{application.sender.username}}/';">
             
-           	 <div class="column" id="leftBox"><img src="{{ application.sender.get_profile_pic() }}" id="img"></div>
+           	 <div class="column" id="leftBox"><img src="{{ application.sender.profile_pic.src }}" id="img"></div>
             <div class="column" id="middleBox">
               <h1 style="color:black"><b>   
               {{ application.sender.name }}</b></h1>
@@ -27,7 +27,7 @@
         	
           {% else %}
            <div>
-              No relations to be established yet..
+              No connections to be established yet..
             </div>
             {% endif %}
               </div>

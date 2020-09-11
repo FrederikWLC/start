@@ -3,7 +3,7 @@ from flask import redirect, url_for, render_template, request, session, flash, a
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db, available_skills
-from app.models import User, Application, Message, Skill, sqlalchemy, get_explore_query, get_distances_from_to
+from app.models import User, Application, Message, Skill, Group, sqlalchemy, get_explore_query, get_distances_from_to
 from app.funcs import geocode, get_age
 import json
 import folium
@@ -25,6 +25,9 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+
+        if not username and not password:
+            return json.dumps({'status': 'All fields must be filled in', 'box_ids': ['username', "password"]})
 
         if not username:
             return json.dumps({'status': 'Username must be filled in', 'box_ids': ['username']})
@@ -132,7 +135,6 @@ def home():
 
 @app.route('/explore/', methods=['GET', 'POST'])
 def explore():
-    print(request.args)
     q_address = request.args.get('loc')
     q_radius = request.args.get('rad')
     q_skill = request.args.get('ski')
@@ -151,44 +153,34 @@ def explore():
         min_age = request.form.get("min_age")
         max_age = request.form.get("max_age")
 
-        print(address)
-        print(skill)
-        print(radius)
-        print(gender)
-        print(min_age)
-        print(max_age)
+        if not address and not radius:
+            return json.dumps({'status': 'All fields required', 'box_ids': ['location', 'radius']})
 
-        if not address or not radius:
-            print("All fields required")
-            return json.dumps({'status': 'All fields required'})
+        if not address:
+            return json.dumps({'status': 'Location required', 'box_ids': ['location']})
 
+        if not radius:
+            return json.dumps({'status': 'Radius required', 'box_ids': ['radius']})
         location = geocode(address)
         if not location:
-            print("Non-valid location")
-            return json.dumps({'status': 'Non-valid location'})
-
+            return json.dumps({'status': 'Non-valid location', 'box_ids': ['location']})
         try:
             float(radius)
         except ValueError:
-            print("Non-valid radius")
-            return json.dumps({'status': 'Non-valid radius'})
-
-        print(f"Successfully verified")
-        print(f"Searching potential co-entrepreneur with radius {radius}, location {location} and skill {skill}")
+            return json.dumps({'status': 'Non-valid radius', 'box_ids': ['radius']})
 
         url = f'/explore?loc={address}&rad={radius}'
 
         if skill:
-            if dict(zip(available_skills, available_skills)).get(skill):
+            if skill in available_skills:
                 url += f'&ski={skill}'
         if gender:
-            if {"Male": "Male", "Female": "Female", "Other": "Other"}.get(gender):
+            if gender in ["Male", "Female", "Other"]:
                 url += f'&gen={gender}'
         if min_age:
             url += f'&min={min_age}'
         if max_age:
             url += f'&max={max_age}'
-
         return json.dumps({'status': 'Successfully validated', 'url': url})
 
     if not q_address or not q_radius:
@@ -199,19 +191,12 @@ def explore():
         return render_template("explore.html", search=False, available_skills=available_skills, **q_strings)
 
     try:
-        print(q_address)
-        print(q_radius)
-        print(q_skill)
-        print(q_gender)
-        print(q_min_age)
-        print(q_max_age)
         query = get_explore_query(latitude=q_location.latitude, longitude=q_location.longitude, radius=q_radius, skill=q_skill, gender=q_gender, min_age=q_min_age, max_age=q_max_age)
 
     except ValueError:
         abort(404)
 
     profiles = query.limit(5).all()
-    print(profiles)
     distances = get_distances_from_to(profiles=profiles, latitude=q_location.latitude, longitude=q_location.longitude)
     return render_template("explore.html", search=True, profiles=profiles, distances=distances, zip=zip, available_skills=available_skills, **q_strings)
 
@@ -257,8 +242,10 @@ def connections(username=None):
     else:
         profile = current_user
 
-    connections = profile.get_connections()
-    return render_template('connections.html', connections=connections, profile=profile)
+    connections = profile.connections.all()
+    groups = profile.groups.all()
+    print(groups)
+    return render_template('connections.html', connections=connections, groups=groups, profile=profile)
 
 
 @app.route("/profile/<username>/connect/", methods=["GET", "POST"])
@@ -269,7 +256,7 @@ def connect(username):
 
     profile = User.query.filter_by(username=username).first_or_404()
 
-    if current_user.is_related_to(profile) or current_user.submitted_applications.filter_by(recipient=profile).first():
+    if current_user.is_connected_to(profile) or current_user.submitted_applications.filter_by(recipient=profile).first():
         return redirect(url_for("profile", username=username))
 
     if request.method == 'POST':
@@ -322,7 +309,7 @@ def messages(username):
     if username == current_user.username:
         abort(404)
     profile = User.query.filter_by(username=username).first_or_404()
-    if not current_user.is_related_to(profile):
+    if not current_user.is_connected_to(profile):
         return redirect(url_for("profile", username=username))
 
     messages = current_user.get_messages_with(profile).all()
@@ -351,7 +338,6 @@ def messages(username):
 @login_required
 def edit_profile():
     if request.method == 'POST':
-        print("POST")
         name = request.form.get("name")
         bio = request.form.get("bio")
         location = request.form.get("location")
@@ -390,7 +376,7 @@ def edit_profile():
             image = Image.open(file)
             new_image = image.resize((256, 256), Image.ANTIALIAS)
             new_image.format = image.format
-            current_user.save_profile_pic(new_image)
+            current_user.profile_pic.save(image=new_image)
         current_user.name = name.strip()
         current_user.bio = bio.strip()
         current_user.set_location(location=location, prelocated=True)
@@ -408,14 +394,96 @@ def edit_profile():
             if not skill.title in skills:
                 db.session.delete(skill)
 
-        print(current_user.skills.all())
         db.session.commit()
         return json.dumps({'status': 'Successfully saved'})
     return render_template('profile.html', edit_profile=True, profile=current_user,
-                           available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.month, selected_year=current_user.birthdate.year)
+                           available_skills=available_skills, selected_month=current_user.birthdate.month, selected_day=current_user.birthdate.day, selected_year=current_user.birthdate.year)
 
 
 @app.errorhandler(404)
 @app.route("/404/<e>/")
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
+@app.route("/create/", methods=["GET", "POST"])
+@login_required
+def create():
+    return render_template('create.html')
+
+
+@app.route("/create/group/", methods=["GET", "POST"])
+@login_required
+def create_group():
+    if request.method == 'POST':
+        handle = request.form.get("handle")
+        name = request.form.get("name")
+        description = request.form.get("description")
+        privacy = request.form.get("privacy")
+        location_is_fixed = int(request.form.get("location_is_fixed"))
+        address = request.form.get("address")
+        members = eval(request.form.get("members"))
+
+        file = request.files.get("image")
+
+        if not handle:
+            return json.dumps({'status': 'Handle must be filled in', 'box_id': 'handle'})
+
+        if not name:
+            return json.dumps({'status': 'Name must be filled in', 'box_id': 'name'})
+
+        if not address and location_is_fixed:
+            return json.dumps({'status': 'Location must be filled in if fixed', 'box_id': 'location'})
+
+        if not Group.query.filter_by(handle=handle).first() is None:
+            return json.dumps({'status': 'Handle taken', 'box_ids': ['handle']})
+
+        location = geocode(address)
+        if not location:
+            return json.dumps({'status': 'Non-valid location', 'box_id': 'location'})
+
+        group = Group(handle=handle, name=name, description=description, privacy=privacy, location_is_fixed=location_is_fixed)
+        group.add_members([User.query.filter_by(username=username).first() for username in members] + [current_user])
+        if location_is_fixed:
+            group.set_location(location, prelocated=True)
+
+        if file:
+            image = Image.open(file)
+            new_image = image.resize((256, 256), Image.ANTIALIAS)
+            new_image.format = image.format
+            group.profile_pic.save(image=new_image)
+        db.session.commit()
+        return json.dumps({'status': 'Successfully saved'})
+
+    connections = current_user.connections.all()
+    return render_template('connections.html', profile=current_user, connections=connections, create_group=True)
+
+
+@app.route("/create/project/", methods=["GET", "POST"])
+@login_required
+def create_project():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
+    connections = current_user.connections.all()
+    return render_template('connections.html', profile=current_user, connections=connections, create_project=True)
+
+
+@app.route("/get/connections/", methods=["POST"])
+def get_connections():
+    if request.method == 'POST':
+        text = request.form.get("text")
+        already_chosen = eval(request.form.get("already_chosen"))
+        connections = current_user.get_connections_from_text(text, already_chosen).limit(10).all()
+        formatted_connections = [{"username": profile.username, "name": profile.name, "profile_pic": profile.profile_pic.src} for profile in connections]
+        return json.dumps({'connections': formatted_connections})
+
+# -------- User page ---------------------------------------------------------- #
+
+
+@app.route("/group/<handle>/", methods=["GET", "POST"])
+def group(handle):
+
+    group = Group.query.filter_by(handle=handle).first_or_404()
+
+    return render_template('group.html', group=group)

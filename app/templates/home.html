@@ -2,8 +2,8 @@
 {% block body %}
 
 {% include "navbar.html" %}
-	<section class="hero is-primary is-bold is-large">
-	<div class="hero-body">
+	<section class="hero is-info is-bold is-large">
+	<div class="hero-body background">
 	<p class="title is-2"> Wadup, {{current_user.name}}? </p>
   </div>
   </section>
@@ -11,4 +11,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="../static/js/navbar.js"></script>
+<link rel="stylesheet" href="/static/css/base.css">
 {% endblock %}

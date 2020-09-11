@@ -1,5 +1,0 @@
-{% if sender_is_profile %}
-<div class='message-container sender_is_profile'> <div class='profile_pic'><img src='{{ profile.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>{{content}}</textarea></div></div>
-{% else %}
-<div class='message-container sender_is_current_user'> <div class='profile_pic'><img src='{{ current_user.get_profile_pic() }}' class='image'></div> <div class='message-box'> <textarea class='textarea has-fixed-size message' readonly>{{content}}</textarea></div></div>
-{% endif %}
